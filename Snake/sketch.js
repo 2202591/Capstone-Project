@@ -32,6 +32,24 @@ function draw() {
   myApple.display();
 }
 
+function keyPressed(){
+  if(keyCode === RIGHT_ARROW) {
+    mySnake.xSpeed = 0.2;
+    mySnake.ySpeed = 0;
+  }
+  if(keyCode === UP_ARROW) {
+    mySnake.xSpeed = 0;
+    mySnake.ySpeed = 0.2;
+  }
+  if(keyCode === DOWN_ARROW) {
+    mySnake.xSpeed = 0;
+    mySnake.ySpeed = -0.2;
+  }
+  if(keyCode === LEFT_ARROW) {
+    mySnake.xSpeed = -0.2;
+    mySnake.ySpeed = 0;
+  }
+}
 function createGrid(){
   // creates the background grid
   for(let y= 0; y < rows; y++){
@@ -51,15 +69,22 @@ function createGrid(){
 class Snake{
   constructor(x,y,c,s){
     this.x = x; this.y = y;
-    this.c = c; this.s = s;
+    this.c = c; this.s = s;;
+    this.xSpeed = 0.2;
+    this.ySpeed = 0;
   }
   display(){
     fill(62, 146, 199);
     rect(this.x*squareSize,this.y*squareSize,squareSize*-snakeLength, squareSize);
   }
   move(){
-    xSpeed = this.s;
-    this.x += xSpeed;
+
+    this.x += this.xSpeed;
+    this.y += this.ySpeed;
+    if(this.x >= cols) this.x = 17;
+    if(this.x < 1) this.x = 1;
+    if(this.y >= rows) this.y = rows;
+    if(this.y < 1) this.y = 1;
   }
 }
 class Fruit{
@@ -67,10 +92,12 @@ class Fruit{
     this.x = round(random(cols));
     this.y = round(random(rows));
     this.count = count;
+    // make sure that fruit dontspawn off the grid
     if(this.x >= cols) this.x = 16;
     else if(this.x < 1) this.x = 1;
     if(this.y >= rows) this.y = 14;
     else if(this.y < 1) this.y = 1;
+    
   }
   display(){
     fill(255, 0, 0);
