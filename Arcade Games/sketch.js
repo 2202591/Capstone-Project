@@ -7,12 +7,14 @@
 let grid = [];
 
 let squareSize = 30;
-let rows =  10;
-let cols = 10;
+let rows =  20;
+let cols = 20;
 let x;
 let y;
 
 function setup() {
+  rows+=2;
+  cols+=2;
   createCanvas(cols*squareSize, rows*squareSize);
   randomGrid();
 }
@@ -33,15 +35,21 @@ function start() {
 function randomGrid() {  //randomizes grid start
   for (let y = 0; y < rows; y++) {
     grid.push([]);
-    for (let x = 0; x < cols; x++) { 
+    for (let x = 0; x < cols; x++) {
       let num = random(1);
-      if(num < 0.15)grid[y].push(new DetectorOrMine(x,y,true));
-      else grid[y].push(new DetectorOrMine(x,y,false));
+      if(x < rows - 1 && x > 0 && y < cols - 1 && y > 0) {
+        if(num < 0.15)grid[y].push(new DetectorOrMine(x,y,"mine"));
+        else grid[y].push(new DetectorOrMine(x,y,"detector"));
+      }
+      else {
+        grid[y].push(new DetectorOrMine(x,y,"boarder"));
+      }
+      
     }
   } 
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) { 
-      if(y > 0 && y < 9 && x < 9 && x > 0) grid[y][x].nearMines();
+      if(y > 0 && y < rows-1 && x < cols-1 && x > 0) grid[y][x].nearMines();
     }
   } 
 }
@@ -52,6 +60,16 @@ function showGrid() {
       grid[y][x].display();
     }
   } 
+}
+
+function mousePressed() {
+  if (mouseX <= width & mouseY <= height) {
+    
+  }
+}
+
+function flip() {  //swaps white to black and black to white
+  if (grid[y][x].grass)  grid[y][x].grass === false;
 }
 
 function getCurrentX() {
@@ -69,40 +87,59 @@ class DetectorOrMine {
     this.x = x;
     this.y = y;
 
+    this.mineColor = color(230, 59, 87);
     this.colorOne = color(238,230,199);
-    this.colorTwo = color(230, 59, 87);
-    this.colorDetector = color(238,230,199)
+    this.colorTwo = color(215,207,174);
+    this.boarderColor = color(100);
 
+    this.grass = true;
     this.mine = mine;
     this.minesNear = 0;
   }
 
   display() {
-    if (this.mine) {
-      fill(this.colorOne);
+    //add grass plus click
+    noStroke();
+    if(this.grass) {
+      if((this.x+this.y)%2 === 0) fill(199,227,113);
+      else fill(163,199,62);
+
       square(this.x*squareSize, this.y*squareSize, squareSize);
-      fill(this.colorTwo);
-      circle((this.x + 0.5)*squareSize, (this.y + 0.5)*squareSize, squareSize/2);
     }
     else {
-      fill(this.colorDetector);
+      if (this.mine === "mine") {
+        if((this.x+this.y)%2 === 0) fill(this.colorOne);
+        else fill(this.colorTwo);
+  
+        square(this.x*squareSize, this.y*squareSize, squareSize);
+        fill(this.mineColor);
+        circle((this.x + 0.5)*squareSize, (this.y + 0.5)*squareSize, squareSize/2);
+      }
+      else if(this.mine === "detector"){
+        if((this.x+this.y)%2 === 0) fill(this.colorOne);
+        else fill(this.colorTwo);
+  
+        square(this.x*squareSize, this.y*squareSize, squareSize);
+        fill(0);
+        textSize(20);
+        if(this.minesNear !== 0) text(this.minesNear,(this.x + 0.35)*squareSize, (this.y + 0.75)*squareSize)
+      }
+    }
+    else {
+      fill(this.boarderColor);
       square(this.x*squareSize, this.y*squareSize, squareSize);
-      fill(0);
-      textSize(20);
-      if(this.minesNear !== 0) text(this.minesNear,(this.x + 0.35)*squareSize, (this.y + 0.75)*squareSize)
     }
   }
 
   nearMines() {
-    if(grid[this.y-1][this.x].mine) this.minesNear++;
-    if(grid[this.y+1][this.x].mine) this.minesNear++;
-    if(grid[this.y][this.x-1].mine) this.minesNear++;
-    if(grid[this.y][this.x+1].mine) this.minesNear++;
-    if(grid[this.y-1][this.x-1].mine) this.minesNear++;
-    if(grid[this.y+1][this.x+1].mine) this.minesNear++;
-    if(grid[this.y+1][this.x-1].mine) this.minesNear++;   
-    if(grid[this.y-1][this.x+1].mine) this.minesNear++;
-
+    if(grid[this.y-1][this.x].mine === "mine") this.minesNear++;
+    if(grid[this.y+1][this.x].mine === "mine") this.minesNear++;
+    if(grid[this.y][this.x-1].mine === "mine") this.minesNear++;
+    if(grid[this.y][this.x+1].mine === "mine") this.minesNear++;
+    if(grid[this.y-1][this.x-1].mine === "mine") this.minesNear++;
+    if(grid[this.y+1][this.x+1].mine === "mine") this.minesNear++;
+    if(grid[this.y+1][this.x-1].mine === "mine") this.minesNear++;   
+    if(grid[this.y-1][this.x+1].mine === "mine") this.minesNear++;
   }
 }
 
