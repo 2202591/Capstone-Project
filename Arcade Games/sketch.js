@@ -24,6 +24,8 @@ function draw() {
   x = getCurrentX();
   y = getCurrentY();
   showGrid();
+  fill(0);
+  text(grid[y][x].flag,mouseX, mouseY);
 }
 
 // Start Screen
@@ -64,13 +66,15 @@ function showGrid() {
 
 function mousePressed() {
   if (mouseX <= width & mouseY <= height) {
-    
+    if (grid[y][x].grass && grid[y][x].flag === false){
+      if(mouseButton === CENTER) {
+        
+      }
+      else grid[y][x].grass = false;
+    }
   }
 }
 
-function flip() {  //swaps white to black and black to white
-  if (grid[y][x].grass)  grid[y][x].grass === false;
-}
 
 function getCurrentX() {
   let constrainedX = constrain(mouseX, 0, width-1);
@@ -92,6 +96,7 @@ class DetectorOrMine {
     this.colorTwo = color(215,207,174);
     this.boarderColor = color(100);
 
+    this.flag = false;
     this.grass = true;
     this.mine = mine;
     this.minesNear = 0;
@@ -101,33 +106,48 @@ class DetectorOrMine {
     //add grass plus click
     noStroke();
     if(this.grass) {
-      if((this.x+this.y)%2 === 0) fill(199,227,113);
-      else fill(163,199,62);
-
-      square(this.x*squareSize, this.y*squareSize, squareSize);
+      if(this.flag) {
+        if((this.x+this.y)%2 === 0) fill(199,227,113);
+        else fill(163,199,62);
+        if(this.mine === "boarder") fill(this.boarderColor);
+        square(this.x*squareSize, this.y*squareSize, squareSize);
+        
+        if(this.mine !== "boarder") {
+          fill(255,0,0);
+          triangle(this.x*squareSize + 5, this.y*squareSize + 5, this.x*squareSize + 20, this.y*squareSize + 10, this.x*squareSize + 5, this.y*squareSize + 20);
+          line(this.x*squareSize + 5, this.y*squareSize, this.x*squareSize + 5, this.y*squareSize + 10);
+      
+        }
+     }
+      else {
+        if((this.x+this.y)%2 === 0) fill(199,227,113);
+        else fill(163,199,62);
+        if(this.mine === "boarder") fill(this.boarderColor);
+        square(this.x*squareSize, this.y*squareSize, squareSize);
+      }
     }
-    else {
+    else{
       if (this.mine === "mine") {
         if((this.x+this.y)%2 === 0) fill(this.colorOne);
         else fill(this.colorTwo);
-  
         square(this.x*squareSize, this.y*squareSize, squareSize);
+
         fill(this.mineColor);
         circle((this.x + 0.5)*squareSize, (this.y + 0.5)*squareSize, squareSize/2);
       }
       else if(this.mine === "detector"){
         if((this.x+this.y)%2 === 0) fill(this.colorOne);
         else fill(this.colorTwo);
-  
         square(this.x*squareSize, this.y*squareSize, squareSize);
+
         fill(0);
         textSize(20);
-        if(this.minesNear !== 0) text(this.minesNear,(this.x + 0.35)*squareSize, (this.y + 0.75)*squareSize)
+        if(this.minesNear !== 0) text(this.minesNear,(this.x + 0.35)*squareSize, (this.y + 0.75)*squareSize);
       }
-    }
-    else {
-      fill(this.boarderColor);
-      square(this.x*squareSize, this.y*squareSize, squareSize);
+      else {
+        fill(this.boarderColor);
+        square(this.x*squareSize, this.y*squareSize, squareSize);
+      }
     }
   }
 
