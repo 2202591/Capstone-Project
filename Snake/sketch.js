@@ -10,6 +10,8 @@ let squareSize = 30;
 let snakeLength = 1;
 let xSpeed;
 let changeDir = -1;
+let fruits = [];
+
 function setup() {
   createCanvas(cols * squareSize, rows * squareSize);
 
@@ -21,7 +23,20 @@ function setup() {
     // }
   }
   mySnake = new Snake(5, 0.2);
-  myApple = new Fruit(1);
+  fruits.push(new Fruit(1));
+}
+
+function addFruit(){
+  for(let f of fruits){
+    f.display();
+  }
+  for(let f of fruits){
+    if(f.x * squareSize === mySnake.x && f.y * squareSize === mySnake.y){
+      f.x = round(random(cols-1))
+      f.y = round(random(rows-1))
+    }
+  }
+
 }
 
 function draw() {
@@ -30,8 +45,9 @@ function draw() {
   createGrid();
   mySnake.display();
   mySnake.move();
-  myApple.display();
+  
   turn();
+  addFruit();
 }
 
 function turn() {
@@ -92,15 +108,15 @@ class Snake {
   }
   display() {
     fill(62, 146, 199);
-    rect(this.x , this.y , squareSize * -snakeLength, squareSize);
+    rect(this.x, this.y, squareSize, squareSize);
   }
   move() {
 
     this.x += round(this.xSpeed);
     this.y += round(this.ySpeed);
 
-    if (this.x >= cols*squareSize) this.x = 17*squareSize;
-    if (this.x < 1*squareSize) this.x = 1*squareSize;
+    if (this.x >= 16*squareSize) this.x = 16*squareSize;
+    if (this.x < 0*squareSize) this.x = 0*squareSize;
     if (this.y >= 14*squareSize) this.y = 14*squareSize;
     if (this.y < 0) this.y = 0;
   }
@@ -121,7 +137,7 @@ class Snake {
 }
 class Fruit {
   constructor(count) {
-    this.x = round(random(cols));
+    this.x = round(random(cols-1));
     this.y = round(random(rows));
     this.count = count;
     // make sure that fruit doesnt spawn off the grid
