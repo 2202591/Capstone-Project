@@ -7,17 +7,18 @@
 let grid = [];
 
 let squareSize = 30;
-let rows =  20;
-let cols = 20;
+let rows =  30;
+let cols = 30;
 let x;
 let y;
-let count = 0;
+let mineNum = 50;
 
 function setup() {
   rows+=2;
   cols+=2;
   createCanvas(cols*squareSize, rows*squareSize);
   randomGrid();
+  checkGrid();
 }
 
 function draw() {
@@ -25,8 +26,6 @@ function draw() {
   x = getCurrentX();
   y = getCurrentY();
   showGrid();
-  checkGrid();
-  fill(0);
 }
 
 // Start Screen
@@ -36,12 +35,16 @@ function start() {
 
 // Minesweeper
 function randomGrid() {  //randomizes grid start
+  let mineNum = 50;
   for (let y = 0; y < rows; y++) {
     grid.push([]);
     for (let x = 0; x < cols; x++) {
       let num = random(1);
       if(x < rows - 1 && x > 0 && y < cols - 1 && y > 0) {
-        if(num < 0.15)grid[y].push(new DetectorOrMine(x,y,"mine"));
+        if(num < 0.165 && mineNum > 0) {
+          grid[y].push(new DetectorOrMine(x,y,"mine"));
+          // mineNum--;
+        }
         else grid[y].push(new DetectorOrMine(x,y,"detector"));
       }
       else {
@@ -54,7 +57,8 @@ function randomGrid() {  //randomizes grid start
     for (let x = 0; x < cols; x++) { 
       if(y > 0 && y < rows-1 && x < cols-1 && x > 0) grid[y][x].nearMines();
     }
-  } 
+  }
+
 }
 
 function showGrid() {
@@ -66,49 +70,39 @@ function showGrid() {
 }
 
 function checkGrid() {
-  count = 0;
-  mineCount = 0;
+  let count = 0;
+  let mineCount = 0;
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) { 
       if(grid[y][x].grass === false && grid[y][x].mine === "detector") {
         count++;
       }
-      if(grid[y][x].grass === false && grid[y][x].mine === "mine") {
+      if(grid[y][x].mine === "mine") {
         mineCount++;
       }
     }
-  } 
-  print(count);
-  if(count === (rows-2)*(cols-2) - mineCount) {
-    youWin();
   }
-}
-
-function youLose() {
-  textSize(50);
-  fill(0);
-  text("YOU LOSE", width/2, height/2);
-}
-
-function youWin() {
-  textSize(50);
-  fill(0);
-  text("YOU WIN", width/2, height/2);
+  print(mineCount);
 }
 
 function mousePressed() {
   if (mouseX <= width & mouseY <= height) {
     if (grid[y][x].grass){
       if(keyIsDown(17)) {
-        if(grid[y][x].flag === false) grid[y][x].flag = true;
-        else grid[y][x].flag = false;
+        if(grid[y][x].flag === false){
+          grid[y][x].flag = true;
+        }
+
+        else {
+          grid[y][x].flag = false;
+        }
       }
       else {
         if(grid[y][x].flag === false) {
           grid[y][x].grass = false;
         }
         if(grid[y][x].mine === "mine") {
-          youLose();
+
         }
       }
     }
@@ -147,7 +141,7 @@ class DetectorOrMine {
     noStroke();
     if(this.grass === false || this.minesNear === 0) {
       if (this.mine === "mine") {
-        this.minesNear = 1;
+        this.minesNear = -1;
         if((this.x+this.y)%2 === 0) fill(this.colorOne);
         else fill(this.colorTwo);
         square(this.x*squareSize, this.y*squareSize, squareSize);
@@ -203,6 +197,7 @@ class DetectorOrMine {
     if(grid[this.y+1][this.x-1].mine === "mine") this.minesNear++;   
     if(grid[this.y-1][this.x+1].mine === "mine") this.minesNear++;
   }
+
 }
 
 //Snake
