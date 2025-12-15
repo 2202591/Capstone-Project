@@ -11,6 +11,8 @@ let snakeLength = 1;
 let xSpeed;
 let changeDir = -1;
 let fruits = [];
+let snakes = [];
+let score = 0;
 
 function setup() {
   createCanvas(cols * squareSize, rows * squareSize);
@@ -22,7 +24,9 @@ function setup() {
     //   grid[y][x] = floor(random(0,2));
     // }
   }
-  mySnake = new Snake(5, 0.2);
+  snakes.push(new Snake(4*squareSize, 7*squareSize, 5, 0.2));
+  snakes.push(new Snake(3*squareSize, 7*squareSize, 5, 0.2));
+  snakes.push(new Snake(2*squareSize, 7*squareSize, 5, 0.2));
   fruits.push(new Fruit(1));
 }
 
@@ -31,9 +35,13 @@ function addFruit(){
     f.display();
   }
   for(let f of fruits){
-    if(f.x * squareSize === mySnake.x && f.y * squareSize === mySnake.y){
-      f.x = round(random(cols-1))
-      f.y = round(random(rows-1))
+    for(let s of snakes){
+      if(f.x * squareSize === s.x && f.y * squareSize === s.y){
+        f.x = round(random(cols-1))
+        f.y = round(random(rows-1))
+        score++;
+        print(score);
+      }
     }
   }
 
@@ -43,45 +51,53 @@ function draw() {
   noStroke();
   background(220);
   createGrid();
-  mySnake.display();
-  mySnake.move();
+  for(let s of snakes){
+    s.display();
+    s.move();
+  }
+  
   
   turn();
   addFruit();
 }
 
 function turn() {
-  print(changeDir, mySnake.x, squareSize, mySnake.xSpeed, mySnake.ySpeed);
-  if(changeDir !== -1){
-    if (mySnake.x % squareSize === 0 && mySnake.y % squareSize === 0) {
-      //checks if its in a tile or in between
-      if (changeDir === 3) { //right
-        mySnake.xSpeed = 2;
-        mySnake.ySpeed = 0;
-      }
-      if (changeDir === 4) { //left 
-        mySnake.xSpeed = -2;
-        mySnake.ySpeed = 0;
-       
-      }
-      if (changeDir === 1) { //down
-        mySnake.xSpeed = 0;
-        mySnake.ySpeed = 2;
-       
-      }
-      if (changeDir === 2) { //up
-        mySnake.xSpeed = 0;
-        mySnake.ySpeed = -2; 
-       
+ 
+  for(let s of snakes){
+    if(changeDir !== -1){
+      if (s.x % squareSize === 0 && s.y % squareSize === 0) {
+        //checks if its in a tile or in between
+        if (changeDir === 3) { //right
+          s.xSpeed = 2;
+          s.ySpeed = 0;
+        }
+        if (changeDir === 4) { //left 
+          s.xSpeed = -2;
+          s.ySpeed = 0;
+          
+        }
+        if (changeDir === 1) { //down
+          s.xSpeed = 0;
+          s.ySpeed = 2;
+          
+        }
+        if (changeDir === 2) { //up
+          s.xSpeed = 0;
+          s.ySpeed = -2; 
+          
+        }
+
       }
     }
-
   }
 
 }
 
 function keyPressed() {
-    mySnake.change();
+  for (let s of snakes){
+    s.change();
+  }
+    
 }
 function createGrid() {
   // creates the background grid
@@ -100,8 +116,8 @@ function createGrid() {
   }
 }
 class Snake {
-  constructor(c, s) {
-    this.x = 4*squareSize; this.y =  7*squareSize;
+  constructor(x, y, c, s) {
+    this.x = x; this.y = y;
     this.c = c; this.s = s;;
     this.xSpeed = 2;
     this.ySpeed = 0;
@@ -133,6 +149,9 @@ class Snake {
     if (keyCode === LEFT_ARROW) {
       changeDir = 4;
     }
+  }
+  follow(){
+    
   }
 }
 class Fruit {
