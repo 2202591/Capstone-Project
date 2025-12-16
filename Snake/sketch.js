@@ -14,9 +14,10 @@ let fruits = [];
 let snakes = [];
 let score = 0;
 
-function setup() {
-  createCanvas(cols * squareSize, rows * squareSize);
 
+function setup() {
+  frameRate(8)
+  createCanvas(cols * squareSize, rows * squareSize);
   //initialize the grid
   for (let y = 0; y < rows; y++) {
     grid[y] = [];
@@ -24,9 +25,9 @@ function setup() {
     //   grid[y][x] = floor(random(0,2));
     // }
   }
-  snakes.push(new Snake(4*squareSize, 7*squareSize, 5, 0.2));
-  snakes.push(new Snake(3*squareSize, 7*squareSize, 5, 0.2));
-  snakes.push(new Snake(2*squareSize, 7*squareSize, 5, 0.2));
+  snakes.push(new Snake(4*squareSize, 7*squareSize));
+  snakes.push(new Snake(3*squareSize, 7*squareSize));
+  snakes.push(new Snake(2*squareSize, 7*squareSize));
   fruits.push(new Fruit(1));
 }
 
@@ -51,46 +52,53 @@ function draw() {
   noStroke();
   background(220);
   createGrid();
+  
+
+  let head = snakes[0];
+
+  //move body when alligned in grid
+  for(let i = snakes.length - 1; i > 0; i--){ 
+    snakes[i].x = snakes[i - 1].x; 
+    snakes[i].y = snakes[i - 1].y; 
+  }
+
+  turn();
+  //move head
+  head.move();
+  
   for(let s of snakes){
     s.display();
-    s.move();
   }
-  
-  
-  turn();
   addFruit();
 }
 
 function turn() {
- 
-  for(let s of snakes){
-    if(changeDir !== -1){
-      if (s.x % squareSize === 0 && s.y % squareSize === 0) {
-        //checks if its in a tile or in between
-        if (changeDir === 3) { //right
-          s.xSpeed = 2;
-          s.ySpeed = 0;
-        }
-        if (changeDir === 4) { //left 
-          s.xSpeed = -2;
-          s.ySpeed = 0;
-          
-        }
-        if (changeDir === 1) { //down
-          s.xSpeed = 0;
-          s.ySpeed = 2;
-          
-        }
-        if (changeDir === 2) { //up
-          s.xSpeed = 0;
-          s.ySpeed = -2; 
-          
-        }
+  let head = snakes[0];
+  
 
-      }
+  if (head.x % squareSize === 0 && head.y % squareSize === 0) {
+    //checks if its in a tile or in between
+    if (changeDir === 3 && head.xSpeed === 0) { //right
+      head.xSpeed = squareSize;
+      head.ySpeed = 0;
     }
+    if (changeDir === 4 && head.xSpeed === 0) { //left 
+      head.xSpeed = -squareSize;
+      head.ySpeed = 0;
+            
+    }
+    if (changeDir === 1 && head.ySpeed === 0) { //down
+      head.xSpeed = 0;
+      head.ySpeed = squareSize;
+            
+    }
+    if (changeDir === 2 && head.ySpeed === 0) { //up
+      head.xSpeed = 0;
+      head.ySpeed = -squareSize; 
+            
+    }
+    changeDir = -1;
   }
-
 }
 
 function keyPressed() {
@@ -116,11 +124,12 @@ function createGrid() {
   }
 }
 class Snake {
-  constructor(x, y, c, s) {
+  constructor(x, y) {
     this.x = x; this.y = y;
-    this.c = c; this.s = s;;
-    this.xSpeed = 2;
+    this.xSpeed = squareSize;
     this.ySpeed = 0;
+    this.gridX = round(x/squareSize);
+    this.gridY = round(y/squareSize);
   }
   display() {
     fill(62, 146, 199);
@@ -128,8 +137,11 @@ class Snake {
   }
   move() {
 
-    this.x += round(this.xSpeed);
-    this.y += round(this.ySpeed);
+    this.x += this.xSpeed;
+    this.y += this.ySpeed;
+
+    this.gridX = round(this.x / squareSize);
+    this.gridY = round(this.y / squareSize);
 
     if (this.x >= 16*squareSize) this.x = 16*squareSize;
     if (this.x < 0*squareSize) this.x = 0*squareSize;
@@ -150,14 +162,12 @@ class Snake {
       changeDir = 4;
     }
   }
-  follow(){
-    
-  }
+
 }
 class Fruit {
   constructor(count) {
     this.x = round(random(cols-1));
-    this.y = round(random(rows));
+    this.y = round(random(rows -1));
     this.count = count;
     // make sure that fruit doesnt spawn off the grid
     if (this.x >= cols) this.x = 16;
