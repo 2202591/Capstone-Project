@@ -7,8 +7,8 @@
 let grid = [];
 
 let squareSize = 30;
-let rows =  30;
-let cols = 30;
+let rows =  10;
+let cols = 10;
 let x;
 let y;
 let mineNum = 50;
