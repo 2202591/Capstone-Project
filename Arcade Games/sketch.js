@@ -7,8 +7,8 @@
 let grid = [];
 
 let squareSize = 30;
-let rows =  10;
-let cols = 10;
+let rows =  15;
+let cols = 15;
 let x;
 let y;
 let mineNum = 50;
@@ -16,9 +16,10 @@ let mineNum = 50;
 function setup() {
   rows+=2;
   cols+=2;
+  textAlign(CENTER, CENTER);
+  textSize(20);
   createCanvas(cols*squareSize, rows*squareSize);
   randomGrid();
-  checkGrid();
 }
 
 function draw() {
@@ -26,6 +27,7 @@ function draw() {
   x = getCurrentX();
   y = getCurrentY();
   showGrid();
+  checkGrid();
 }
 
 // Start Screen
@@ -72,17 +74,44 @@ function showGrid() {
 function checkGrid() {
   let count = 0;
   let mineCount = 0;
+  let activeMine = 0;
+  let flagCount = 0;
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) { 
-      if(grid[y][x].grass === false && grid[y][x].mine === "detector") {
+      if(grid[y][x].grass === false && grid[y][x].mine !== "mine") {
         count++;
       }
       if(grid[y][x].mine === "mine") {
         mineCount++;
       }
+      if(grid[y][x].mine === "mine" && grid[y][x].grass === false){
+        activeMine = 1;
+      }
+      if(grid[y][x].flag){
+        flagCount++;
+      }
     }
   }
-  print(mineCount);
+  if((rows)*(cols) - mineCount === count && activeMine === 0) {
+    youWin();
+  }
+  if(activeMine === 1) {
+    youLose();
+  }
+  fill(0);
+  text(mineCount-flagCount,width/2,squareSize/2);
+}
+
+function youWin() {
+  fill(255);
+  background(0);
+  text("YOU WIN",width/2, height/2);
+}
+
+function youLose() {
+  fill(255);
+  background(0);
+  text("YOU LOSE",width/2, height/2);
 }
 
 function mousePressed() {
@@ -139,6 +168,7 @@ class DetectorOrMine {
   display() {
     //add grass plus click
     noStroke();
+    if(this.mine === "boarder") this.grass = false;
     if(this.grass === false || this.minesNear === 0) {
       if (this.mine === "mine") {
         this.minesNear = -1;
@@ -153,10 +183,11 @@ class DetectorOrMine {
         if((this.x+this.y)%2 === 0) fill(this.colorOne);
         else fill(this.colorTwo);
         square(this.x*squareSize, this.y*squareSize, squareSize);
+        if(this.minesNear === 0) this.grass = false;
 
         fill(0);
         textSize(20);
-        if(this.minesNear !== 0) text(this.minesNear,(this.x + 0.35)*squareSize, (this.y + 0.75)*squareSize);
+        if(this.minesNear !== 0) text(this.minesNear,(this.x + 0.5)*squareSize, (this.y + 0.5)*squareSize);
       }
       else {
         fill(this.boarderColor);
@@ -177,7 +208,7 @@ class DetectorOrMine {
           rect(this.x*squareSize + 13, this.y*squareSize + 5, this.x*squareSize + 11, this.y*squareSize + 25);
           rectMode(CORNER);
         }
-     }
+      }
       else {
         if((this.x+this.y)%2 === 0) fill(199,227,113);
         else fill(163,199,62);

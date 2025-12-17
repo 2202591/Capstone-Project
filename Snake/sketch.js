@@ -45,7 +45,7 @@ function addFruit(){
       }
     }
   }
-
+  
 }
 
 function draw() {
