@@ -1,4 +1,4 @@
-// Snake, Minesweeper, and Pac Man
+// Snake, Minesweeper, and block breaker
 // Corbin and Peyton
 // December 1st, 2025
 // CS30 Capstone Project
@@ -6,12 +6,18 @@
 
 let grid = [];
 
+//mineweeper Variables
 let squareSize = 30;
-let rows =  15;
-let cols = 15;
+let rows =  50;
+let cols = 50;
 let x;
 let y;
 let mineNum = 50;
+
+let count = 0;
+let mineCount = 0;
+let activeMine = 0;
+let flagCount = 0;
 
 function setup() {
   rows+=2;
@@ -60,6 +66,11 @@ function randomGrid() {  //randomizes grid start
       if(y > 0 && y < rows-1 && x < cols-1 && x > 0) grid[y][x].nearMines();
     }
   }
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) { 
+      if(y > 0 && y < rows-1 && x < cols-1 && x > 0) grid[y][x].noMines();
+    }
+  }
 
 }
 
@@ -72,10 +83,10 @@ function showGrid() {
 }
 
 function checkGrid() {
-  let count = 0;
-  let mineCount = 0;
-  let activeMine = 0;
-  let flagCount = 0;
+  count = 0;
+  mineCount = 0;
+  activeMine = 0;
+  flagCount = 0;
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) { 
       if(grid[y][x].grass === false && grid[y][x].mine !== "mine") {
@@ -98,7 +109,7 @@ function checkGrid() {
   if(activeMine === 1) {
     youLose();
   }
-  fill(0);
+  fill(255);
   text(mineCount-flagCount,width/2,squareSize/2);
 }
 
@@ -119,9 +130,8 @@ function mousePressed() {
     if (grid[y][x].grass){
       if(keyIsDown(17)) {
         if(grid[y][x].flag === false){
-          grid[y][x].flag = true;
+          if(mineCount - flagCount > 0) grid[y][x].flag = true;
         }
-
         else {
           grid[y][x].flag = false;
         }
@@ -229,6 +239,18 @@ class DetectorOrMine {
     if(grid[this.y-1][this.x+1].mine === "mine") this.minesNear++;
   }
 
+  noMines() {
+    if(this.mine !== "mine") {
+      if(grid[this.y-1][this.x].minesNear === 0 && grid[this.y-1][this.x].mine === "detector") this.grass = false;
+      if(grid[this.y+1][this.x].minesNear === 0 && grid[this.y+1][this.x].mine === "detector") this.grass = false;
+      if(grid[this.y][this.x-1].minesNear === 0 && grid[this.y][this.x-1].mine === "detector") this.grass = false;
+      if(grid[this.y][this.x+1].minesNear === 0 && grid[this.y][this.x+1].mine === "detector") this.grass = false;
+      if(grid[this.y-1][this.x-1].minesNear === 0 && grid[this.y-1][this.x-1].mine === "detector") this.grass = false;
+      if(grid[this.y+1][this.x+1].minesNear === 0 && grid[this.y+1][this.x+1].mine === "detector") this.grass = false;
+      if(grid[this.y+1][this.x-1].minesNear === 0 && grid[this.y+1][this.x-1].mine === "detector") this.grass = false;   
+      if(grid[this.y-1][this.x+1].minesNear === 0 && grid[this.y-1][this.x+1].mine === "detector") this.grass = false;
+    }
+  }
 }
 
 //Snake
