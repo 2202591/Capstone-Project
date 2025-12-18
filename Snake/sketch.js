@@ -7,12 +7,13 @@ let grid = []
 let rows = 15;
 let cols = 17;
 let squareSize = 30;
-let snakeLength = 1;
+let score = 3;
+let snakeLength = score;
 let xSpeed;
 let changeDir = -1;
 let fruits = [];
 let snakes = [];
-let score = 0;
+
 
 
 function setup() {
@@ -70,6 +71,12 @@ function draw() {
     s.display();
   }
   addFruit();
+
+  //display the score
+  
+  fill(0);
+  textSize(30);
+  text("Score:"+score, 0, squareSize)
 }
 
 function turn() {
@@ -160,6 +167,13 @@ class Snake {
     }
     if (keyCode === LEFT_ARROW) {
       changeDir = 4;
+    }
+  }
+  grow(){
+    for(let f of fruits){
+      if(f.x * squareSize === this.x && f.y * squareSize === this.y){
+        
+      }
     }
   }
 
