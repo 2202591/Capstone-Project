@@ -176,7 +176,7 @@ class Snake {
       }
     }
   }
-
+  // .
 }
 class Fruit {
   constructor(count) {
