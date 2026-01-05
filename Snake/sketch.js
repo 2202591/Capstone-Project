@@ -43,11 +43,34 @@ function addFruit(){
         f.y = round(random(rows-1))
         score++;
         print(score);
+        let l = snakes.length;
+        let backX = snakes[l-1].x
+        let backY = snakes[l-1].y
+        if(changeDir === 1) { // down
+          snakes.push(new Snake(backX*squareSize, (backY+1)*squareSize));
+ 
+        }
+        if(changeDir === 2) {// up
+          snakes.push(new Snake(backX*squareSize, (backY-1)*squareSize));
+ 
+         }
+        if(changeDir === 3) { //right
+          snakes.push(new Snake((backX-1)*squareSize, backY*squareSize));
+ 
+ 
+        }
+        if(changeDir === 4) {//left
+          snakes.push(new Snake((backX+1)*squareSize, backY*squareSize));
+ 
+        }
       }
+
+      
     }
   }
-  
 }
+  
+
 
 function draw() {
   noStroke();
@@ -69,6 +92,7 @@ function draw() {
   
   for(let s of snakes){
     s.display();
+    
   }
   addFruit();
 
@@ -172,7 +196,26 @@ class Snake {
   grow(){
     for(let f of fruits){
       if(f.x * squareSize === this.x && f.y * squareSize === this.y){
-        
+       let l = snakes.length;
+       let backX = snakes[l-1].x
+       let backY = snakes[l-1].y
+        if(changeDir === 1) { // down
+          snakes.push(new Snake(backX*squareSize, (backY+1)*squareSize));
+
+        }
+        if(changeDir === 2) {// up
+          snakes.push(new Snake(backX*squareSize, (backY-1)*squareSize));
+
+        }
+        if(changeDir === 3) { //right
+          snakes.push(new Snake((backX-1)*squareSize, backY*squareSize));
+
+
+        }
+        if(changeDir === 4) {//left
+          snakes.push(new Snake((backX+1)*squareSize, backY*squareSize));
+
+        }
       }
     }
   }
