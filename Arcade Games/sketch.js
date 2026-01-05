@@ -8,8 +8,8 @@ let grid = [];
 
 //mineweeper Variables
 let squareSize = 30;
-let rows =  50;
-let cols = 50;
+let rows =  15;
+let cols = 15;
 let x;
 let y;
 let mineNum = 50;
@@ -43,30 +43,28 @@ function start() {
 
 // Minesweeper
 function randomGrid() {  //randomizes grid start
-  let mineNum = 50;
   for (let y = 0; y < rows; y++) {
     grid.push([]);
     for (let x = 0; x < cols; x++) {
       let num = random(1);
-      if(x < rows - 1 && x > 0 && y < cols - 1 && y > 0) {
-        if(num < 0.165 && mineNum > 0) {
-          grid[y].push(new DetectorOrMine(x,y,"mine"));
-          // mineNum--;
+      if(x < rows - 1 && x > 0 && y < cols - 1 && y > 0) { //creates grid inside the boarder
+        if(num < 0.165) { // frequency of mine placement
+          grid[y].push(new DetectorOrMine(x,y,"mine")); //places mine
         }
-        else grid[y].push(new DetectorOrMine(x,y,"detector"));
+        else grid[y].push(new DetectorOrMine(x,y,"detector")); //places detector
       }
       else {
-        grid[y].push(new DetectorOrMine(x,y,"boarder"));
+        grid[y].push(new DetectorOrMine(x,y,"boarder")); // places bparder
       }
       
     }
   } 
-  for (let y = 0; y < rows; y++) {
+  for (let y = 0; y < rows; y++) { //checks every square to see how many mines are near
     for (let x = 0; x < cols; x++) { 
       if(y > 0 && y < rows-1 && x < cols-1 && x > 0) grid[y][x].nearMines();
     }
   }
-  for (let y = 0; y < rows; y++) {
+  for (let y = 0; y < rows; y++) { //reveals all numbers that are beside squares with no mines near
     for (let x = 0; x < cols; x++) { 
       if(y > 0 && y < rows-1 && x < cols-1 && x > 0) grid[y][x].noMines();
     }
@@ -74,7 +72,7 @@ function randomGrid() {  //randomizes grid start
 
 }
 
-function showGrid() {
+function showGrid() { //displays the grid
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) { 
       grid[y][x].display();
@@ -82,7 +80,7 @@ function showGrid() {
   } 
 }
 
-function checkGrid() {
+function checkGrid() { //checks how many mines, flags, and non mines
   count = 0;
   mineCount = 0;
   activeMine = 0;
@@ -90,16 +88,16 @@ function checkGrid() {
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) { 
       if(grid[y][x].grass === false && grid[y][x].mine !== "mine") {
-        count++;
+        count++;  //counts how mamy squares have been clicked
       }
       if(grid[y][x].mine === "mine") {
-        mineCount++;
+        mineCount++;  //counts # of mines
       }
       if(grid[y][x].mine === "mine" && grid[y][x].grass === false){
-        activeMine = 1;
+        activeMine = 1;  //checks if a mines has been clicked
       }
       if(grid[y][x].flag){
-        flagCount++;
+        flagCount++;  //counts # of flags active
       }
     }
   }
@@ -110,7 +108,7 @@ function checkGrid() {
     youLose();
   }
   fill(255);
-  text(mineCount-flagCount,width/2,squareSize/2);
+  text(mineCount-flagCount,width/2,squareSize/2); //prints how many mines are left
 }
 
 function youWin() {
@@ -126,22 +124,19 @@ function youLose() {
 }
 
 function mousePressed() {
-  if (mouseX <= width & mouseY <= height) {
+  if (mouseX <= width & mouseY <= height) { //mouse must be in the canvas
     if (grid[y][x].grass){
-      if(keyIsDown(17)) {
+      if(keyIsDown(17)) { //if ctrl is downn places flags if number of flags > 0
         if(grid[y][x].flag === false){
           if(mineCount - flagCount > 0) grid[y][x].flag = true;
         }
         else {
-          grid[y][x].flag = false;
+          grid[y][x].flag = false;  //removes flag if there is a flag already there
         }
       }
       else {
-        if(grid[y][x].flag === false) {
+        if(grid[y][x].flag === false) { //allows to turnoer new squares if there is no flag
           grid[y][x].grass = false;
-        }
-        if(grid[y][x].mine === "mine") {
-
         }
       }
     }
@@ -149,57 +144,56 @@ function mousePressed() {
 }
 
 
-function getCurrentX() {
+function getCurrentX() { //rounds mouse value to grid x
   let constrainedX = constrain(mouseX, 0, width-1);
   return floor(constrainedX / squareSize);
 }
 
-function getCurrentY() {
+function getCurrentY() { //rounds mouse value to grid y
   let constrainedY = constrain(mouseY, 0, height-1);
   return floor(constrainedY / squareSize);
 }
 
 class DetectorOrMine {
-  constructor(x,y,mine) {
+  constructor(x,y,mine) { //takes position and type
     this.x = x;
     this.y = y;
 
-    this.mineColor = color(230, 59, 87);
-    this.colorOne = color(238,230,199);
+    this.mineColor = color(230, 59, 87);  //colors for mine
+    this.colorOne = color(238,230,199);   //background colors
     this.colorTwo = color(215,207,174);
-    this.boarderColor = color(100);
+    this.boarderColor = color(100); //boarder color
 
-    this.flag = false;
+    this.flag = false;  //each square starts out as not showing and no flag
     this.grass = true;
     this.mine = mine;
     this.minesNear = 0;
   }
 
   display() {
-    //add grass plus click
     noStroke();
-    if(this.mine === "boarder") this.grass = false;
-    if(this.grass === false || this.minesNear === 0) {
+    if(this.mine === "boarder") this.grass = false; //shows boarder instantly
+    if(this.grass === false || this.minesNear === 0) {  //displays grass squares before being turned over
       if (this.mine === "mine") {
         this.minesNear = -1;
-        if((this.x+this.y)%2 === 0) fill(this.colorOne);
+        if((this.x+this.y)%2 === 0) fill(this.colorOne); //creates checkerboard pattern
         else fill(this.colorTwo);
         square(this.x*squareSize, this.y*squareSize, squareSize);
 
         fill(this.mineColor);
         circle((this.x + 0.5)*squareSize, (this.y + 0.5)*squareSize, squareSize/2);
       }
-      else if(this.mine === "detector"){
-        if((this.x+this.y)%2 === 0) fill(this.colorOne);
+      else if(this.mine === "detector"){ //detector
+        if((this.x+this.y)%2 === 0) fill(this.colorOne); //creates checkerboard pattern
         else fill(this.colorTwo);
         square(this.x*squareSize, this.y*squareSize, squareSize);
-        if(this.minesNear === 0) this.grass = false;
+        if(this.minesNear === 0) this.grass = false;  //shows detectors with no mines near
 
         fill(0);
-        textSize(20);
+        textSize(20);  //puts text only on squares with mines near
         if(this.minesNear !== 0) text(this.minesNear,(this.x + 0.5)*squareSize, (this.y + 0.5)*squareSize);
       }
-      else {
+      else { //boarder
         fill(this.boarderColor);
         square(this.x*squareSize, this.y*squareSize, squareSize);
       }
@@ -228,7 +222,7 @@ class DetectorOrMine {
     }
   }
 
-  nearMines() {
+  nearMines() { //checks how many mines are near each square
     if(grid[this.y-1][this.x].mine === "mine") this.minesNear++;
     if(grid[this.y+1][this.x].mine === "mine") this.minesNear++;
     if(grid[this.y][this.x-1].mine === "mine") this.minesNear++;
@@ -240,7 +234,7 @@ class DetectorOrMine {
   }
 
   noMines() {
-    if(this.mine !== "mine") {
+    if(this.mine !== "mine") {  //displays all squares that are next to squares with no mines
       if(grid[this.y-1][this.x].minesNear === 0 && grid[this.y-1][this.x].mine === "detector") this.grass = false;
       if(grid[this.y+1][this.x].minesNear === 0 && grid[this.y+1][this.x].mine === "detector") this.grass = false;
       if(grid[this.y][this.x-1].minesNear === 0 && grid[this.y][this.x-1].mine === "detector") this.grass = false;
