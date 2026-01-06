@@ -16,6 +16,8 @@ let snakes = [];
 
 
 
+
+
 function setup() {
   frameRate(8)
   createCanvas(cols * squareSize, rows * squareSize);
@@ -43,29 +45,9 @@ function addFruit(){
         f.y = round(random(rows-1))
         score++;
         print(score);
-        let l = snakes.length;
-        let backX = snakes[l-1].x
-        let backY = snakes[l-1].y
-        if(changeDir === 1) { // down
-          snakes.push(new Snake(backX*squareSize, (backY+1)*squareSize));
- 
-        }
-        if(changeDir === 2) {// up
-          snakes.push(new Snake(backX*squareSize, (backY-1)*squareSize));
- 
-         }
-        if(changeDir === 3) { //right
-          snakes.push(new Snake((backX-1)*squareSize, backY*squareSize));
- 
- 
-        }
-        if(changeDir === 4) {//left
-          snakes.push(new Snake((backX+1)*squareSize, backY*squareSize));
- 
-        }
-      }
+        growSnake();
 
-      
+      }
     }
   }
 }
@@ -93,6 +75,7 @@ function draw() {
   for(let s of snakes){
     s.display();
     
+    
   }
   addFruit();
 
@@ -102,7 +85,33 @@ function draw() {
   textSize(30);
   text("Score:"+score, 0, squareSize)
 }
-
+function growSnake(){
+  let l = snakes.length;
+  let backX = snakes[l-1].x
+  let backY = snakes[l-1].y
+  for(let f of fruits){
+    if(f.x*squareSize === snakes[0].x && f.y*squareSize === snakes[0].y){
+      if(changeDir === 1) { // down
+        snakes.push(new Snake(backX, (backY+squareSize)));
+    
+      }
+      if(changeDir === 2) {// up
+        snakes.push(new Snake(backX, (backY-squareSize)));
+    
+      }
+      if(changeDir === 3) { //right
+        snakes.push(new Snake((backX-squareSize), backY));
+    
+    
+      }
+      if(changeDir === 4) {//left
+        snakes.push(new Snake((backX+squareSize), backY));
+    
+      }
+    }
+      
+  }
+}
 function turn() {
   let head = snakes[0];
   
@@ -128,7 +137,7 @@ function turn() {
       head.ySpeed = -squareSize; 
             
     }
-    changeDir = -1;
+    
   }
 }
 
@@ -193,32 +202,7 @@ class Snake {
       changeDir = 4;
     }
   }
-  grow(){
-    for(let f of fruits){
-      if(f.x * squareSize === this.x && f.y * squareSize === this.y){
-       let l = snakes.length;
-       let backX = snakes[l-1].x
-       let backY = snakes[l-1].y
-        if(changeDir === 1) { // down
-          snakes.push(new Snake(backX*squareSize, (backY+1)*squareSize));
 
-        }
-        if(changeDir === 2) {// up
-          snakes.push(new Snake(backX*squareSize, (backY-1)*squareSize));
-
-        }
-        if(changeDir === 3) { //right
-          snakes.push(new Snake((backX-1)*squareSize, backY*squareSize));
-
-
-        }
-        if(changeDir === 4) {//left
-          snakes.push(new Snake((backX+1)*squareSize, backY*squareSize));
-
-        }
-      }
-    }
-  }
   // .
 }
 class Fruit {
