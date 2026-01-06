@@ -10,14 +10,13 @@ let grid = [];
 let squareSize = 30;
 let rows =  15;
 let cols = 15;
-let x;
-let y;
-let mineNum = 50;
 
 let count = 0;
 let mineCount = 0;
 let activeMine = 0;
 let flagCount = 0;
+
+let i = 0;
 
 function setup() {
   rows+=2;
@@ -25,24 +24,38 @@ function setup() {
   textAlign(CENTER, CENTER);
   textSize(20);
   createCanvas(cols*squareSize, rows*squareSize);
-  randomGrid();
+  mineGrid();
 }
 
 function draw() {
   background(220);
   x = getCurrentX();
   y = getCurrentY();
-  showGrid();
-  checkGrid();
+  start();
+  if(i === 1) mineSweeper();
+  // if(i === 2) snake();
 }
 
 // Start Screen
 function start() {
-  
+  fill(0); 
+  square(width/2-50, height/2-50, 100);
+  if(mouseX > width/2-50 && mouseX < width/2+50) {
+    if(mouseY > height/2-50 && mouseY < height/2+50) {
+      if(mouseIsPressed) {
+        i = 1;
+      }
+    }
+  }
 }
 
 // Minesweeper
-function randomGrid() {  //randomizes grid start
+function mineSweeper() {
+  showGrid();
+  checkGrid();
+}
+
+function mineGrid() {  //randomizes grid start
   for (let y = 0; y < rows; y++) {
     grid.push([]);
     for (let x = 0; x < cols; x++) {
@@ -124,19 +137,21 @@ function youLose() {
 }
 
 function mousePressed() {
-  if (mouseX <= width & mouseY <= height) { //mouse must be in the canvas
-    if (grid[y][x].grass){
-      if(keyIsDown(17)) { //if ctrl is downn places flags if number of flags > 0
-        if(grid[y][x].flag === false){
-          if(mineCount - flagCount > 0) grid[y][x].flag = true;
+  if(i === 1) {
+    if (mouseX <= width & mouseY <= height) { //mouse must be in the canvas
+      if (grid[y][x].grass){
+        if(keyIsDown(17)) { //if ctrl is downn places flags if number of flags > 0
+          if(grid[y][x].flag === false){
+            if(mineCount - flagCount > 0) grid[y][x].flag = true;
+          }
+          else {
+            grid[y][x].flag = false;  //removes flag if there is a flag already there
+          }
         }
         else {
-          grid[y][x].flag = false;  //removes flag if there is a flag already there
-        }
-      }
-      else {
-        if(grid[y][x].flag === false) { //allows to turnoer new squares if there is no flag
-          grid[y][x].grass = false;
+          if(grid[y][x].flag === false) { //allows to turnoer new squares if there is no flag
+            grid[y][x].grass = false;
+          }
         }
       }
     }
@@ -199,13 +214,13 @@ class DetectorOrMine {
       }
     }
     else{
-      if(this.flag) {
+      if(this.flag) {  //makes a flag
         if((this.x+this.y)%2 === 0) fill(199,227,113);
         else fill(163,199,62);
         if(this.mine === "boarder") fill(this.boarderColor);
         square(this.x*squareSize, this.y*squareSize, squareSize);
         
-        if(this.mine !== "boarder") {
+        if(this.mine !== "boarder") { //prevents flags from being placed on boarders
           fill(255,0,0);
           triangle(this.x*squareSize + 13, this.y*squareSize + 5, this.x*squareSize + 22, this.y*squareSize + 10, this.x*squareSize + 13, this.y*squareSize + 15);
           rectMode(CORNERS);
@@ -214,7 +229,7 @@ class DetectorOrMine {
         }
       }
       else {
-        if((this.x+this.y)%2 === 0) fill(199,227,113);
+        if((this.x+this.y)%2 === 0) fill(199,227,113); //still keeps the checkerboard pattern
         else fill(163,199,62);
         if(this.mine === "boarder") fill(this.boarderColor);
         square(this.x*squareSize, this.y*squareSize, squareSize);
@@ -222,7 +237,7 @@ class DetectorOrMine {
     }
   }
 
-  nearMines() { //checks how many mines are near each square
+  nearMines() { //checks how many mines are near each square in a one tile radius
     if(grid[this.y-1][this.x].mine === "mine") this.minesNear++;
     if(grid[this.y+1][this.x].mine === "mine") this.minesNear++;
     if(grid[this.y][this.x-1].mine === "mine") this.minesNear++;
