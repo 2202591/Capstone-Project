@@ -39,11 +39,20 @@ function draw() {
 // Start Screen
 function start() {
   fill(0); 
-  square(width/2-50, height/2-50, 100);
-  if(mouseX > width/2-50 && mouseX < width/2+50) {
+  square(width*0.33-50, height/2-50, 100);
+  square(width*0.66-50, height/2-50, 100);
+
+  if(mouseX > width*0.33-50 && mouseX < width*0.33+50) {
     if(mouseY > height/2-50 && mouseY < height/2+50) {
       if(mouseIsPressed) {
         i = 1;
+      }
+    }
+  }
+  if(mouseX > width*0.66-50 && mouseX < width*0.66+50) {
+    if(mouseY > height/2-50 && mouseY < height/2+50) {
+      if(mouseIsPressed) {
+        i = 2;
       }
     }
   }
