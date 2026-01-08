@@ -40,13 +40,26 @@ function addFruit(){
   }
   for(let f of fruits){
     for(let s of snakes){
+      let l = snakes.length;
+      let backX = snakes[l-1].x
+      let backY = snakes[l-1].y
       if(f.x * squareSize === s.x && f.y * squareSize === s.y){
         f.x = round(random(cols-1))
         f.y = round(random(rows-1))
         score++;
         print(score);
-        growSnake();
-
+        if(changeDir === 1) { // down
+          snakes.push(new Snake(backX, (backY+squareSize)));
+        }
+        if(changeDir === 2) {// up
+          snakes.push(new Snake(backX, (backY-squareSize)));
+        }
+        if(changeDir === 3) { //right
+          snakes.push(new Snake((backX-squareSize), backY));
+        }
+        if(changeDir === 4) {//left
+          snakes.push(new Snake((backX+squareSize), backY));
+        }
       }
     }
   }
@@ -90,23 +103,25 @@ function growSnake(){
   let backX = snakes[l-1].x
   let backY = snakes[l-1].y
   for(let f of fruits){
-    if(f.x*squareSize === snakes[0].x && f.y*squareSize === snakes[0].y){
-      if(changeDir === 1) { // down
-        snakes.push(new Snake(backX, (backY+squareSize)));
-    
-      }
-      if(changeDir === 2) {// up
-        snakes.push(new Snake(backX, (backY-squareSize)));
-    
-      }
-      if(changeDir === 3) { //right
-        snakes.push(new Snake((backX-squareSize), backY));
-    
-    
-      }
-      if(changeDir === 4) {//left
-        snakes.push(new Snake((backX+squareSize), backY));
-    
+    for(let s of snakes) {
+      if(f.x * squareSize === s.x && f.y * squareSize === s.y){
+        if(changeDir === 1) { // down
+          snakes.push(new Snake(backX, (backY+squareSize)));
+      
+        }
+        if(changeDir === 2) {// up
+          snakes.push(new Snake(backX, (backY-squareSize)));
+      
+        }
+        if(changeDir === 3) { //right
+          snakes.push(new Snake((backX-squareSize), backY));
+      
+      
+        }
+        if(changeDir === 4) {//left
+          snakes.push(new Snake((backX+squareSize), backY));
+      
+        }
       }
     }
       
