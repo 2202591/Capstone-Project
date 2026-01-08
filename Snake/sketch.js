@@ -191,7 +191,10 @@ class Snake {
     rect(this.x, this.y, squareSize, squareSize);
   }
   move() {
-
+    let l = snakes.length;
+    
+    let backX = snakes[l-1].x
+    let backY = snakes[l-1].y
     this.x += this.xSpeed;
     this.y += this.ySpeed;
 
@@ -202,6 +205,13 @@ class Snake {
     if (this.x < 0*squareSize) this.x = 0*squareSize;
     if (this.y >= 14*squareSize) this.y = 14*squareSize;
     if (this.y < 0) this.y = 0;
+
+    //check if snake runs into itself
+    for(let i = 0; i <= snakes.length; i++ ){
+      if(snakes[i].x === snakes[0].x && snakes[i].y === snakes[0].y){
+        this.xSpeed = 0; this.ySpeed = 0;
+      }
+    }
   }
   change(){
     if(keyCode === DOWN_ARROW) {
