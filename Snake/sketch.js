@@ -13,6 +13,7 @@ let xSpeed;
 let changeDir = -1;
 let fruits = [];
 let snakes = [];
+let crash = false;
 
 
 
@@ -71,24 +72,23 @@ function draw() {
   noStroke();
   background(220);
   createGrid();
-  
 
   let head = snakes[0];
-
-  //move body when alligned in grid
-  for(let i = snakes.length - 1; i > 0; i--){ 
-    snakes[i].x = snakes[i - 1].x; 
-    snakes[i].y = snakes[i - 1].y; 
-  }
-
   turn();
   //move head
-  head.move();
+  if(crash === false){
+    
+    //move body when alligned in grid
+    for(let i = snakes.length - 1; i > 0; i--){ 
+      snakes[i].x = snakes[i - 1].x; 
+      snakes[i].y = snakes[i - 1].y; 
+    }
+    head.move();
+  }
+  
   
   for(let s of snakes){
     s.display();
-    
-    
   }
   addFruit();
 
@@ -207,9 +207,14 @@ class Snake {
     if (this.y < 0) this.y = 0;
 
     //check if snake runs into itself
-    for(let i = 0; i <= snakes.length; i++ ){
-      if(snakes[i].x === snakes[0].x && snakes[i].y === snakes[0].y){
-        this.xSpeed = 0; this.ySpeed = 0;
+    for (let i = 1; i < snakes.length; i++) {   // start at 1 (skip head)
+      if (snakes[i].x === snakes[0].x &&
+          snakes[i].y === snakes[0].y) {
+        this.xSpeed = 0;
+        this.ySpeed = 0;
+        crash = true;
+        print("crash");
+        
       }
     }
   }
