@@ -28,6 +28,7 @@ function setup() {
   createCanvas(cols*squareSize, rows*squareSize);
   mineGrid();
   snakeGrid();
+  frameRate(8)
 }
 
 function draw() {
@@ -61,6 +62,14 @@ function start() {
         if(mouseIsPressed) {
           game = 2;
           snakeGrid();
+          for(let s = 0; s < snakes.length+2; s++) {
+            snakes.pop();
+          }
+          fruits.pop(1);
+          snakes.push(new Snake(4*squareSize, 7*squareSize));
+          snakes.push(new Snake(3*squareSize, 7*squareSize));
+          snakes.push(new Snake(2*squareSize, 7*squareSize));
+          fruits.push(new Fruit(1));
         }
       }
     }
@@ -308,88 +317,64 @@ let changeDir = -1;
 let fruits = [];
 let snakes = [];
 
-
-// function setup() {
-//   frameRate(8)
-//   snakes.push(new Snake(4*squareSize, 7*squareSize));
-//   snakes.push(new Snake(3*squareSize, 7*squareSize));
-//   snakes.push(new Snake(2*squareSize, 7*squareSize));
-//   fruits.push(new Fruit(1));
-// }
-
 function snake(){
   snakeGrid();
   showGridS();
+
+  let head = snakes[0];
+
+  //move body when alligned in grid
+  for(let i = snakes.length - 1; i > 0; i--){ 
+    snakes[i].x = snakes[i - 1].x; 
+    snakes[i].y = snakes[i - 1].y; 
+  }
+
+  turn();
+  //move head
+  head.move();
+  
+  for(let s of snakes){
+    s.display();
+    s.colision();
+  }
+  addFruit();
+
+  //display the score
+  
+  fill(255);
+  text("Score:"+score, width/2, squareSize/2)
 }
 
-function growSnake(){
+function addFruit(){
   for(let f of fruits){
     f.display();
   }
   for(let f of fruits){
     for(let s of snakes){
+      let l = snakes.length;
+      let backX = snakes[l-1].x
+      let backY = snakes[l-1].y
       if(f.x * squareSize === s.x && f.y * squareSize === s.y){
-        f.x = round(random(cols-1))
-        f.y = round(random(rows-1))
+        f.x = round(random(1,cols-1))
+        f.y = round(random(1,rows-1))
         score++;
         print(score);
+        if(changeDir === 1) { // down
+          snakes.push(new Snake(backX, (backY+squareSize)));
+        }
+        if(changeDir === 2) {// up
+          snakes.push(new Snake(backX, (backY-squareSize)));
+        }
+        if(changeDir === 3) { //right
+          snakes.push(new Snake((backX-squareSize), backY));
+        }
+        if(changeDir === 4) {//left
+          snakes.push(new Snake((backX+squareSize), backY));
+        }
       }
     }
   }
-  if(f.x * squareSize === s.x && f.y * squareSize === s.y){
-    if(changeDir === 1) { // down
-      snakes.push(new Snake(backX, (backY+squareSize)));
-  
-    }
-    if(changeDir === 2) {// up
-      snakes.push(new Snake(backX, (backY-squareSize)));
-  
-    }
-    if(changeDir === 3) { //right
-      snakes.push(new Snake((backX-squareSize), backY));
-  
-  
-    }
-    if(changeDir === 4) {//left
-      snakes.push(new Snake((backX+squareSize), backY));
-  
-    }
-  }
 }
-  
-
-
-// function draw() {
-//   noStroke();
-//   background(220);
-//   createGrid();
-  
-
-//   let head = snakes[0];
-
-//   //move body when alligned in grid
-//   for(let i = snakes.length - 1; i > 0; i--){ 
-//     snakes[i].x = snakes[i - 1].x; 
-//     snakes[i].y = snakes[i - 1].y; 
-//   }
-
-//   turn();
-//   //move head
-//   head.move();
-  
-//   for(let s of snakes){
-//     s.display();
-    
-    
-//   }
-//   addFruit();
-
-//   //display the score
-  
-//   fill(0);
-//   textSize(30);
-//   text("Score:"+score, 0, squareSize)
-// }
 
 function turn() {
   let head = snakes[0];
@@ -475,10 +460,10 @@ class Snake {
     this.gridX = round(this.x / squareSize);
     this.gridY = round(this.y / squareSize);
 
-    if (this.x >= 16*squareSize) this.x = 16*squareSize;
-    if (this.x < 0*squareSize) this.x = 0*squareSize;
-    if (this.y >= 14*squareSize) this.y = 14*squareSize;
-    if (this.y < 0) this.y = 0;
+    if (this.x >= (cols-2)*squareSize) this.x = (cols-2)*squareSize;
+    if (this.x < 1*squareSize) this.x = 1*squareSize;
+    if (this.y >= (rows-2)*squareSize) this.y = (rows-2)*squareSize;
+    if (this.y < 1*squareSize) this.y = 1*squareSize;
   }
   change(){
     if(keyCode === DOWN_ARROW) {
@@ -494,16 +479,26 @@ class Snake {
       changeDir = 4;
     }
   }
+
+  colision() {
+    for(let s of snakes) {
+      if(s !== snakes[0]) {
+        if(snakes[0].gridX === s.gridX && snakes[0].gridY === s.gridX) {
+          print("collision");
+        }
+      }
+    }
+  }
 }
 class Fruit {
   constructor(count) {
-    this.x = round(random(cols-1));
-    this.y = round(random(rows -1));
+    this.x = round(random(1,cols-1));
+    this.y = round(random(1,rows-1));
     this.count = count;
     // make sure that fruit doesnt spawn off the grid
-    if (this.x >= cols) this.x = 16;
+    if (this.x >= cols - 2) this.x = cols - 2;
     else if (this.x < 1) this.x = 1;
-    if (this.y > rows) this.y = 14;
+    if (this.y > rows - 2) this.y = rows - 2;
     else if (this.y < 1) this.y = 1;
 
   }
