@@ -24,14 +24,14 @@ function setup() {
   cols+=2;
   noStroke();
   textAlign(CENTER, CENTER);
-  textSize(20);
   createCanvas(cols*squareSize, rows*squareSize);
   mineGrid();
   snakeGrid();
-  frameRate(8)
+  frameRate(6)
 }
 
 function draw() {
+  textSize(20);
   background(220);
   x = getCurrentX();
   y = getCurrentY();
@@ -47,8 +47,8 @@ function start() {
     square(width*0.33-50, height/2-50, 100);
     square(width*0.66-50, height/2-50, 100);
     fill(255)
-    text("MINESWEEPER", width*0.33 - 50, height/2);
-    text("SNAKE", width*0.66 - 50, height/2);
+    text("MINESWEEPER", width*0.33, height/2);
+    text("SNAKE", width*0.66, height/2);
     if(mouseX > width*0.33-50 && mouseX < width*0.33+50) {
       if(mouseY > height/2-50 && mouseY < height/2+50) {
         if(mouseIsPressed) {
@@ -62,14 +62,17 @@ function start() {
         if(mouseIsPressed) {
           game = 2;
           snakeGrid();
-          for(let s = 0; s < snakes.length+2; s++) {
-            snakes.pop();
-          }
-          fruits.pop(1);
+          crash = false;
+          score = 3;
+          snakes = [];
+          fruits = [];
+          changeDir = 3;
           snakes.push(new Snake(4*squareSize, 7*squareSize));
           snakes.push(new Snake(3*squareSize, 7*squareSize));
           snakes.push(new Snake(2*squareSize, 7*squareSize));
-          fruits.push(new Fruit(1));
+          fruits.push(new Fruit());
+          fruits.push(new Fruit());
+          fruits.push(new Fruit());
         }
       }
     }
@@ -92,6 +95,8 @@ function start() {
 function mineSweeper() {
   showGridM();
   checkGrid();
+  if(activeMine > 0) activeMine++;
+  if(activeMine > 16) youLose();
 }
 
 function mineGrid() {  //randomizes grid start
@@ -162,7 +167,11 @@ function checkGrid() { //checks how many mines, flags, and non mines
     youWin();
   }
   if(activeMine === 1) {
-    youLose();
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) { 
+        if(gridMines[y][x].mine === "mine") gridMines[y][x].grass = false;
+      }
+    }
   }
   fill(255);
   text(mineCount-flagCount,width/2,squareSize/2); //prints how many mines are left
@@ -172,12 +181,6 @@ function youWin() {
   fill(255);
   background(0);
   text("YOU WIN",width/2, height/2);
-}
-
-function youLose() {
-  fill(255);
-  background(0);
-  text("YOU LOSE",width/2, height/2);
 }
 
 function mousePressed() {
@@ -232,10 +235,10 @@ class DetectorOrMine {
   }
 
   display() {
+    if(this.mine === "mine") this.minesNear = -1;
     if(this.mine === "boarder") this.grass = false; //shows boarder instantly
     if(this.grass === false || this.minesNear === 0) {  //displays grass squares before being turned over
       if (this.mine === "mine") {
-        this.minesNear = -1;
         if((this.x+this.y)%2 === 0) fill(this.colorOne); //creates checkerboard pattern
         else fill(this.colorTwo);
         square(this.x*squareSize, this.y*squareSize, squareSize);
@@ -249,8 +252,7 @@ class DetectorOrMine {
         square(this.x*squareSize, this.y*squareSize, squareSize);
         if(this.minesNear === 0) this.grass = false;  //shows detectors with no mines near
 
-        fill(0);
-        textSize(20);  //puts text only on squares with mines near
+        fill(0);  //puts text only on squares with mines near
         if(this.minesNear !== 0) text(this.minesNear,(this.x + 0.5)*squareSize, (this.y + 0.5)*squareSize);
       }
       else { //boarder
@@ -316,6 +318,7 @@ let xSpeed;
 let changeDir = -1;
 let fruits = [];
 let snakes = [];
+let crash = false;
 
 function snake(){
   snakeGrid();
@@ -324,18 +327,20 @@ function snake(){
   let head = snakes[0];
 
   //move body when alligned in grid
-  for(let i = snakes.length - 1; i > 0; i--){ 
-    snakes[i].x = snakes[i - 1].x; 
-    snakes[i].y = snakes[i - 1].y; 
+  if(crash === false){
+    
+    //move body when alligned in grid
+    for(let i = snakes.length - 1; i > 0; i--){ 
+      snakes[i].x = snakes[i - 1].x; 
+      snakes[i].y = snakes[i - 1].y; 
+    }
+    head.move();
   }
 
   turn();
-  //move head
-  head.move();
   
   for(let s of snakes){
     s.display();
-    s.colision();
   }
   addFruit();
 
@@ -355,8 +360,8 @@ function addFruit(){
       let backX = snakes[l-1].x
       let backY = snakes[l-1].y
       if(f.x * squareSize === s.x && f.y * squareSize === s.y){
-        f.x = round(random(1,cols-1))
-        f.y = round(random(1,rows-1))
+        f.x = round(random(1,cols-2));
+        f.y = round(random(1,rows-2));
         score++;
         print(score);
         if(changeDir === 1) { // down
@@ -450,7 +455,7 @@ class Snake {
   }
   display() {
     fill(62, 146, 199);
-    rect(this.x, this.y, squareSize, squareSize);
+    square(this.x, this.y, squareSize);
   }
   move() {
 
@@ -464,6 +469,17 @@ class Snake {
     if (this.x < 1*squareSize) this.x = 1*squareSize;
     if (this.y >= (rows-2)*squareSize) this.y = (rows-2)*squareSize;
     if (this.y < 1*squareSize) this.y = 1*squareSize;
+
+    for (let i = 1; i < snakes.length; i++) {   // start at 1 (skip head)
+      if (snakes[i].x === snakes[0].x &&
+          snakes[i].y === snakes[0].y) {
+        this.xSpeed = 0;
+        this.ySpeed = 0;
+        crash = true;
+        print("crash");
+        
+      }
+    }
   }
   change(){
     if(keyCode === DOWN_ARROW) {
@@ -480,21 +496,11 @@ class Snake {
     }
   }
 
-  colision() {
-    for(let s of snakes) {
-      if(s !== snakes[0]) {
-        if(snakes[0].gridX === s.gridX && snakes[0].gridY === s.gridX) {
-          print("collision");
-        }
-      }
-    }
-  }
 }
 class Fruit {
-  constructor(count) {
+  constructor() {
     this.x = round(random(1,cols-1));
     this.y = round(random(1,rows-1));
-    this.count = count;
     // make sure that fruit doesnt spawn off the grid
     if (this.x >= cols - 2) this.x = cols - 2;
     else if (this.x < 1) this.x = 1;
