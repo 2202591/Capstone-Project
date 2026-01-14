@@ -25,9 +25,7 @@ function setup() {
   noStroke();
   textAlign(CENTER, CENTER);
   createCanvas(cols*squareSize, rows*squareSize);
-  mineGrid();
-  snakeGrid();
-  frameRate(6)
+  frameRate(10);
 }
 
 function draw() {
@@ -67,9 +65,9 @@ function start() {
           snakes = [];
           fruits = [];
           changeDir = 3;
-          snakes.push(new Snake(4*squareSize, 7*squareSize));
-          snakes.push(new Snake(3*squareSize, 7*squareSize));
-          snakes.push(new Snake(2*squareSize, 7*squareSize));
+          snakes.push(new Snake(4, 7));
+          snakes.push(new Snake(3, 7));
+          snakes.push(new Snake(2, 7));
           fruits.push(new Fruit());
           fruits.push(new Fruit());
           fruits.push(new Fruit());
@@ -310,11 +308,7 @@ class DetectorOrMine {
 }
 
 //Snake
-let mySnake;
-
-let score = 3;
-let snakeLength = score;
-let xSpeed;
+let score;
 let changeDir = -1;
 let fruits = [];
 let snakes = [];
@@ -338,16 +332,17 @@ function snake(){
   }
 
   turn();
-  
+
+  addFruit();
+
   for(let s of snakes){
     s.display();
   }
-  addFruit();
 
   //display the score
-  
+  score = snakes.length;
   fill(255);
-  text("Score:"+score, width/2, squareSize/2)
+  text("Score:"+score, width*0.3, squareSize/2)
 }
 
 function addFruit(){
@@ -359,22 +354,20 @@ function addFruit(){
       let l = snakes.length;
       let backX = snakes[l-1].x
       let backY = snakes[l-1].y
-      if(f.x * squareSize === s.x && f.y * squareSize === s.y){
+      if(f.x === s.x && f.y === s.y){
         f.x = round(random(1,cols-2));
         f.y = round(random(1,rows-2));
-        score++;
-        print(score);
         if(changeDir === 1) { // down
-          snakes.push(new Snake(backX, (backY+squareSize)));
+          snakes.push(new Snake(backX, (backY+1)));
         }
         if(changeDir === 2) {// up
-          snakes.push(new Snake(backX, (backY-squareSize)));
+          snakes.push(new Snake(backX, (backY-1)));
         }
         if(changeDir === 3) { //right
-          snakes.push(new Snake((backX-squareSize), backY));
+          snakes.push(new Snake((backX-1), backY));
         }
         if(changeDir === 4) {//left
-          snakes.push(new Snake((backX+squareSize), backY));
+          snakes.push(new Snake((backX+1), backY));
         }
       }
     }
@@ -383,29 +376,26 @@ function addFruit(){
 
 function turn() {
   let head = snakes[0];
-
-  if (head.x % squareSize === 0 && head.y % squareSize === 0) {
-    //checks if its in a tile or in between
-    if (changeDir === 3 && head.xSpeed === 0) { //right
-      head.xSpeed = squareSize;
-      head.ySpeed = 0;
-    }
-    if (changeDir === 4 && head.xSpeed === 0) { //left 
-      head.xSpeed = -squareSize;
-      head.ySpeed = 0;
-            
-    }
-    if (changeDir === 1 && head.ySpeed === 0) { //down
-      head.xSpeed = 0;
-      head.ySpeed = squareSize;
-            
-    }
-    if (changeDir === 2 && head.ySpeed === 0) { //up
-      head.xSpeed = 0;
-      head.ySpeed = -squareSize; 
-            
-    }
+  if (changeDir === 3 && head.xSpeed === 0) { //right
+    head.xSpeed = 1;
+    head.ySpeed = 0;
   }
+  if (changeDir === 4 && head.xSpeed === 0) { //left 
+    head.xSpeed = -1;
+    head.ySpeed = 0;
+            
+  }
+  if (changeDir === 1 && head.ySpeed === 0) { //down
+    head.xSpeed = 0;
+    head.ySpeed = 1;
+            
+  }
+  if (changeDir === 2 && head.ySpeed === 0) { //up
+    head.xSpeed = 0;
+    head.ySpeed = -1; 
+            
+  }
+
 }
 
 function keyPressed() {
@@ -448,14 +438,19 @@ function showGridS() {
 class Snake {
   constructor(x, y) {
     this.x = x; this.y = y;
-    this.xSpeed = squareSize;
+    this.xSpeed = 1;
     this.ySpeed = 0;
     this.gridX = round(x/squareSize);
     this.gridY = round(y/squareSize);
   }
   display() {
     fill(62, 146, 199);
-    square(this.x, this.y, squareSize);
+    square(this.x*squareSize, this.y*squareSize, squareSize);
+
+    if(this === snakes[0]) {
+      fill(255);
+      circle(this.x*squareSize + squareSize/2, this.y*squareSize + squareSize/2, squareSize/2);
+    }
   }
   move() {
 
@@ -465,19 +460,17 @@ class Snake {
     this.gridX = round(this.x / squareSize);
     this.gridY = round(this.y / squareSize);
 
-    if (this.x >= (cols-2)*squareSize) this.x = (cols-2)*squareSize;
-    if (this.x < 1*squareSize) this.x = 1*squareSize;
-    if (this.y >= (rows-2)*squareSize) this.y = (rows-2)*squareSize;
-    if (this.y < 1*squareSize) this.y = 1*squareSize;
+    if (this.x >= (cols-2)) this.x = (cols-2);
+    if (this.x < 1) this.x = 1;
+    if (this.y >= (rows-2)) this.y = (rows-2);
+    if (this.y < 1) this.y = 1;
 
     for (let i = 1; i < snakes.length; i++) {   // start at 1 (skip head)
       if (snakes[i].x === snakes[0].x &&
           snakes[i].y === snakes[0].y) {
         this.xSpeed = 0;
         this.ySpeed = 0;
-        crash = true;
-        print("crash");
-        
+        crash = true;     
       }
     }
   }
