@@ -18,6 +18,13 @@ let activeMine = 0;
 let flagCount = 0;
 
 let game = 0;
+let f = 10;
+
+let mineButton;
+let snakeButton;
+let speedOne;
+let speedTwo;
+let speedThree;
 
 function setup() {
   rows+=2;
@@ -25,10 +32,10 @@ function setup() {
   noStroke();
   textAlign(CENTER, CENTER);
   createCanvas(cols*squareSize, rows*squareSize);
-  frameRate(10);
 }
 
 function draw() {
+  frameRate(f);
   textSize(20);
   background(220);
   x = getCurrentX();
@@ -40,39 +47,44 @@ function draw() {
 
 // Start Screen
 function start() {
+  mineButton = new Button(width*0.33, height/2, 100, "MINESWEEPER");
+  snakeButton = new Button(width*0.66, height/2, 100, "SNAKE");
+
+  speedOne = new Button(width*0.595, height*0.65, 33, "8");
+  speedTwo = new Button(width*0.66, height*0.65, 33, "10");
+  speedThree = new Button(width*0.725, height*0.65, 33, "12");
+  
   if(game === 0) {
-    fill(0);
-    square(width*0.33-50, height/2-50, 100);
-    square(width*0.66-50, height/2-50, 100);
-    fill(255)
-    text("MINESWEEPER", width*0.33, height/2);
-    text("SNAKE", width*0.66, height/2);
-    if(mouseX > width*0.33-50 && mouseX < width*0.33+50) {
-      if(mouseY > height/2-50 && mouseY < height/2+50) {
-        if(mouseIsPressed) {
-          game = 1;
-          mineGrid();
-        }
-      }
+    mineButton.display();
+    mineButton.press();
+    snakeButton.display();
+    snakeButton.press();
+
+    speedOne.display();
+    speedTwo.display();
+    speedThree.display();
+    speedOne.press();
+    speedTwo.press();
+    speedThree.press();
+
+    if(mineButton.button) {
+      game = 1;
+      mineGrid();
     }
-    if(mouseX > width*0.66-50 && mouseX < width*0.66+50) {
-      if(mouseY > height/2-50 && mouseY < height/2+50) {
-        if(mouseIsPressed) {
-          game = 2;
-          snakeGrid();
-          crash = false;
-          score = 3;
-          snakes = [];
-          fruits = [];
-          changeDir = 3;
-          snakes.push(new Snake(4, 7));
-          snakes.push(new Snake(3, 7));
-          snakes.push(new Snake(2, 7));
-          fruits.push(new Fruit());
-          fruits.push(new Fruit());
-          fruits.push(new Fruit());
-        }
-      }
+    if(snakeButton.button) {
+      game = 2;
+      snakeGrid();
+      crash = false;
+      score = 3;
+      snakes = [];
+      fruits = [];
+      changeDir = 3;
+      snakes.push(new Snake(4, 7));
+      snakes.push(new Snake(3, 7));
+      snakes.push(new Snake(2, 7));
+      fruits.push(new Fruit());
+      fruits.push(new Fruit());
+      fruits.push(new Fruit());
     }
   }
   else {
@@ -89,8 +101,36 @@ function start() {
   }
 }
 
+class Button {
+  constructor(x,y,s, label,) {
+    this.x = x; this.y = y;
+    this.button = false;
+    this.size = s;
+    this.label = label;
+  }
+
+  display() {
+    fill(0);
+    square(this.x - this.size/2,this.y - this.size/2, this.size);
+    fill(255)
+    text(this.label,this.x, this.y);
+  }
+
+  press() {
+    if(mouseX > this.x - this.size/2 && mouseX < this.x + this.size/2) {
+      if(mouseY > this.y - this.size/2 && mouseY < this.y + this.size/2) {
+        if(mouseIsPressed) {
+          this.button = true;
+        }
+      }
+    }
+  }
+
+}
+
 // Minesweeper
 function mineSweeper() {
+  textAlign(CENTER, CENTER);
   showGridM();
   checkGrid();
   if(activeMine > 0) activeMine++;
@@ -309,6 +349,7 @@ class DetectorOrMine {
 
 //Snake
 let score;
+let highScore = 0;
 let changeDir = -1;
 let fruits = [];
 let snakes = [];
@@ -341,8 +382,17 @@ function snake(){
 
   //display the score
   score = snakes.length;
+  if(highScore < score) {
+    highScore = score;
+  }
   fill(255);
-  text("Score:"+score, width*0.3, squareSize/2)
+  text("Score:"+score, width*0.3, squareSize/2);
+  text("Highscore:"+highScore, width*0.65, squareSize/2);
+  if(crash === true){
+    fill(0);
+    text("You Crashed!", width/2, height/2);  
+  }
+
 }
 
 function addFruit(){
@@ -357,6 +407,11 @@ function addFruit(){
       if(f.x === s.x && f.y === s.y){
         f.x = round(random(1,cols-2));
         f.y = round(random(1,rows-2));
+        while(f.x === s.x && f.y === s.y) {
+          f.x = round(random(1,cols-2));
+          f.y = round(random(1,rows-2));
+        }
+        print(count);
         if(changeDir === 1) { // down
           snakes.push(new Snake(backX, (backY+1)));
         }
@@ -470,21 +525,21 @@ class Snake {
           snakes[i].y === snakes[0].y) {
         this.xSpeed = 0;
         this.ySpeed = 0;
-        crash = true;     
+        crash = true;    
       }
     }
   }
   change(){
-    if(keyCode === DOWN_ARROW) {
+    if(keyCode === DOWN_ARROW || keyCode === 83) {
       changeDir = 1;
     }
-    if (keyCode === UP_ARROW) {
+    if (keyCode === UP_ARROW || keyCode === 87) {
       changeDir = 2;
     }
-    if (keyCode === RIGHT_ARROW) {
+    if (keyCode === RIGHT_ARROW || keyCode === 68) {
       changeDir = 3;
     }
-    if (keyCode === LEFT_ARROW) {
+    if (keyCode === LEFT_ARROW || keyCode === 65) {
       changeDir = 4;
     }
   }
