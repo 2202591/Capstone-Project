@@ -9,8 +9,8 @@ let gridSnakes = [];
 
 //mineweeper Variables
 let squareSize = 30;
-let rows =  15;
-let cols = 15;
+let rows =  20;
+let cols = 20;
 
 let count = 0;
 let mineCount = 0;
@@ -28,16 +28,15 @@ let snakeButton;
 let speedOne;
 let speedTwo;
 let speedThree;
-let sizeOne;
-let sizeTwo;
-let sizeThree;
+// let sizeOne;
+// let sizeTwo;
+// let sizeThree;
 
 function setup() {
   rows+=2;
   cols+=2;
   noStroke();
   textAlign(CENTER, CENTER);
-  createCanvas(cols*squareSize, rows*squareSize);
 }
 
 function draw() {
@@ -62,9 +61,9 @@ function start() {
   speedTwo = new Button(width*0.5, height*0.75, 50, "10");
   speedThree = new Button(width*0.66, height*0.75, 50, "12");
 
-  sizeOne = new Button(width*0.33, height*0.25, 50, "10x10");
-  sizeTwo = new Button(width*0.5, height*0.25, 50, "15x15");
-  sizeThree = new Button(width*0.66, height*0.25, 50, "20x20");
+  // sizeOne = new Button(width*0.33, height*0.25, 50, "10x10");
+  // sizeTwo = new Button(width*0.5, height*0.25, 50, "15x15");
+  // sizeThree = new Button(width*0.66, height*0.25, 50, "20x20");
   
   if(game === 0) {
     startTime = time.getSeconds();
@@ -81,12 +80,12 @@ function start() {
     speedTwo.press();
     speedThree.press();
 
-    sizeOne.display();
-    sizeTwo.display();
-    sizeThree.display();
-    sizeOne.press();
-    sizeTwo.press();
-    sizeThree.press();
+    // sizeOne.display();
+    // sizeTwo.display();
+    // sizeThree.display();
+    // sizeOne.press();
+    // sizeTwo.press();
+    // sizeThree.press();
 
     if(mineButton.button) {
       game = 1;
@@ -106,23 +105,25 @@ function start() {
       fruits.push(new Fruit());
       fruits.push(new Fruit());
       fruits.push(new Fruit());
+      fruits.push(new Fruit());
+      fruits.push(new Fruit());
     }
     if(speedOne.button) f = 8;
     if(speedTwo.button) f = 10;
     if(speedThree.button) f = 12;
 
-    if(sizeOne.button){
-      cols = 12;
-      rows = 12;
-    }
-    if(sizeTwo.button){
-      cols = 17;
-      rows = 17;
-    }
-    if(sizeThree.button){
-      cols = 22;
-      rows = 22;
-    }
+    // if(sizeOne.button){
+    //   cols = 12;
+    //   rows = 12;
+    // }
+    // if(sizeTwo.button){
+    //   cols = 17;
+    //   rows = 17;
+    // }
+    // if(sizeThree.button){
+    //   cols = 22;
+    //   rows = 22;
+    // }
   }
   else {
     fill(255);
@@ -405,10 +406,12 @@ let snakes = [];
 let crash = false;
 
 function snake(){
-  snakeGrid();
-  showGridS();
+  background(120);
 
   let head = snakes[0];
+
+  snakeGrid();
+  showGridS();
 
   //move body when alligned in grid
   if(crash === false){
