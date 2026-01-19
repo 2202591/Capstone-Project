@@ -19,6 +19,9 @@ let flagCount = 0;
 
 let game = 0;
 let f = 10;
+let time;
+let startTime;
+let elapsedTime;
 
 let mineButton;
 let snakeButton;
@@ -35,6 +38,8 @@ function setup() {
 }
 
 function draw() {
+  createCanvas(cols*squareSize, rows*squareSize);
+  time = new Date();
   frameRate(f);
   textSize(20);
   background(220);
@@ -55,6 +60,8 @@ function start() {
   speedThree = new Button(width*0.725, height*0.65, 33, "12");
   
   if(game === 0) {
+    startTime = time.getSeconds();
+
     mineButton.display();
     mineButton.press();
     snakeButton.display();
@@ -86,6 +93,9 @@ function start() {
       fruits.push(new Fruit());
       fruits.push(new Fruit());
     }
+    if(speedOne.button) f = 8;
+    if(speedTwo.button) f = 10;
+    if(speedThree.button) f = 12;
   }
   else {
     fill(255);
@@ -181,6 +191,7 @@ function showGridM() { //displays the grid
 }
 
 function checkGrid() { //checks how many mines, flags, and non mines
+  let quickestTime;
   count = 0;
   mineCount = 0;
   activeMine = 0;
@@ -202,6 +213,7 @@ function checkGrid() { //checks how many mines, flags, and non mines
     }
   }
   if((rows)*(cols) - mineCount === count && activeMine === 0) {
+    if(elapsedTime < quickestTime) quickestTime = elapsedTime;
     youWin();
   }
   if(activeMine === 1) {
@@ -211,8 +223,18 @@ function checkGrid() { //checks how many mines, flags, and non mines
       }
     }
   }
+  fill(255,0,0);
+  triangle(4*squareSize + 13, 5, 4*squareSize + 22, 10, 4*squareSize + 13, 15);
+  rectMode(CORNERS);
+  rect(4*squareSize + 13, 5, 4*squareSize + 11, 25);
+  rectMode(CORNER);
   fill(255);
-  text(mineCount-flagCount,width/2,squareSize/2); //prints how many mines are left
+  text(mineCount-flagCount,width*0.31,squareSize/2); //prints how many mines are left
+  if((rows)*(cols) - mineCount !== count && activeMine === 0) {
+    elapsedTime = time.getSeconds() - startTime;
+  }
+  text("TIME: " + elapsedTime + "s", width*0.6, squareSize/2);
+
 }
 
 function youWin() {
