@@ -68,6 +68,11 @@ function start() {
   if(game === 0) {
     startTime = time.getSeconds();
 
+    text("click = remove grass",width*0.33, height*0.25);
+    text("click + ctrl = flag",width*0.33, height*0.3);
+
+    text("WASD or ARROW KEYS",width*0.66, height*0.25);
+
     mineButton.display();
     mineButton.press();
     snakeButton.display();
@@ -99,9 +104,9 @@ function start() {
       snakes = [];
       fruits = [];
       changeDir = 3;
-      snakes.push(new Snake(4, 7));
-      snakes.push(new Snake(3, 7));
-      snakes.push(new Snake(2, 7));
+      snakes.push(new Snake(4, 10));
+      snakes.push(new Snake(3, 10));
+      snakes.push(new Snake(2, 10));
       fruits.push(new Fruit());
       fruits.push(new Fruit());
       fruits.push(new Fruit());
