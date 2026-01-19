@@ -28,6 +28,9 @@ let snakeButton;
 let speedOne;
 let speedTwo;
 let speedThree;
+let sizeOne;
+let sizeTwo;
+let sizeThree;
 
 function setup() {
   rows+=2;
@@ -42,7 +45,7 @@ function draw() {
   time = new Date();
   frameRate(f);
   textSize(20);
-  background(220);
+  background(120);
   x = getCurrentX();
   y = getCurrentY();
   if(game === 1) mineSweeper();
@@ -55,9 +58,13 @@ function start() {
   mineButton = new Button(width*0.33, height/2, 100, "MINESWEEPER");
   snakeButton = new Button(width*0.66, height/2, 100, "SNAKE");
 
-  speedOne = new Button(width*0.595, height*0.65, 33, "8");
-  speedTwo = new Button(width*0.66, height*0.65, 33, "10");
-  speedThree = new Button(width*0.725, height*0.65, 33, "12");
+  speedOne = new Button(width*0.33, height*0.75, 50, "8");
+  speedTwo = new Button(width*0.5, height*0.75, 50, "10");
+  speedThree = new Button(width*0.66, height*0.75, 50, "12");
+
+  sizeOne = new Button(width*0.33, height*0.25, 50, "10x10");
+  sizeTwo = new Button(width*0.5, height*0.25, 50, "15x15");
+  sizeThree = new Button(width*0.66, height*0.25, 50, "20x20");
   
   if(game === 0) {
     startTime = time.getSeconds();
@@ -73,6 +80,13 @@ function start() {
     speedOne.press();
     speedTwo.press();
     speedThree.press();
+
+    sizeOne.display();
+    sizeTwo.display();
+    sizeThree.display();
+    sizeOne.press();
+    sizeTwo.press();
+    sizeThree.press();
 
     if(mineButton.button) {
       game = 1;
@@ -96,11 +110,24 @@ function start() {
     if(speedOne.button) f = 8;
     if(speedTwo.button) f = 10;
     if(speedThree.button) f = 12;
+
+    if(sizeOne.button){
+      cols = 12;
+      rows = 12;
+    }
+    if(sizeTwo.button){
+      cols = 17;
+      rows = 17;
+    }
+    if(sizeThree.button){
+      cols = 22;
+      rows = 22;
+    }
   }
   else {
     fill(255);
     textSize(20);
-    text("BACK", width*0.94, height*0.03);
+    text("BACK", width*0.94, squareSize/2);
     if(mouseX > width*0.85 && mouseX < width) {
       if(mouseY > 0 && mouseY < height*0.05) {
         if(mouseIsPressed) {
