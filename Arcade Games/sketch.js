@@ -23,6 +23,8 @@ let time;
 let startTime;
 let elapsedTime;
 
+let restartButton;
+let backButton;
 let mineButton;
 let snakeButton;
 let speedOne;
@@ -35,16 +37,24 @@ let speedThree;
 function setup() {
   rows+=2;
   cols+=2;
+  createCanvas(cols*squareSize, rows*squareSize);
   noStroke();
   textAlign(CENTER, CENTER);
+  mineButton = new Button(width*0.33, height/2, 100, "MINESWEEPER");
+  snakeButton = new Button(width*0.66, height/2, 100, "SNAKE");
+  restartButton = new Button(width*0.3, height*0.6, 120, "RESTART");
+  backButton = new Button(width*0.7, height*0.6, 120, "MENU");
+
+  speedOne = new Button(width*0.33, height*0.75, 50, "8");
+  speedTwo = new Button(width*0.5, height*0.75, 50, "10");
+  speedThree = new Button(width*0.66, height*0.75, 50, "12");
 }
 
 function draw() {
-  createCanvas(cols*squareSize, rows*squareSize);
   time = new Date();
   frameRate(f);
   textSize(20);
-  background(120);
+  background(31, 51, 77);
   x = getCurrentX();
   y = getCurrentY();
   if(game === 1) mineSweeper();
@@ -57,9 +67,9 @@ function start() {
   mineButton = new Button(width*0.33, height/2, 100, "MINESWEEPER");
   snakeButton = new Button(width*0.66, height/2, 100, "SNAKE");
 
-  speedOne = new Button(width*0.33, height*0.75, 50, "8");
-  speedTwo = new Button(width*0.5, height*0.75, 50, "10");
-  speedThree = new Button(width*0.66, height*0.75, 50, "12");
+  speedOne = new Button(width*0.33, height*0.65, 50, "8");
+  speedTwo = new Button(width*0.5, height*0.65, 50, "10");
+  speedThree = new Button(width*0.66, height*0.65, 50, "12");
 
   // sizeOne = new Button(width*0.33, height*0.25, 50, "10x10");
   // sizeTwo = new Button(width*0.5, height*0.25, 50, "15x15");
@@ -67,11 +77,17 @@ function start() {
   
   if(game === 0) {
     startTime = time.getSeconds();
+    fill(0)
+    textSize(60);
+    text("ARCADE GAMES",width*0.492, height*0.226);
+    fill(255);
+    text("ARCADE GAMES",width*0.5, height*0.22);
+    textSize(20);
+    text("Speed:",width*0.20,height*0.65)
+    text("click = remove grass",width*0.33, height*0.85);
+    text("click + ctrl = flag",width*0.33, height*0.9);
 
-    text("click = remove grass",width*0.33, height*0.25);
-    text("click + ctrl = flag",width*0.33, height*0.3);
-
-    text("WASD or ARROW KEYS",width*0.66, height*0.25);
+    text("WASD or ARROW KEYS",width*0.66, height*0.85);
 
     mineButton.display();
     mineButton.press();
@@ -96,22 +112,9 @@ function start() {
       game = 1;
       mineGrid();
     }
-    if(snakeButton.button) {
+    if (snakeButton.button) {
       game = 2;
-      snakeGrid();
-      crash = false;
-      score = 3;
-      snakes = [];
-      fruits = [];
-      changeDir = 3;
-      snakes.push(new Snake(4, 10));
-      snakes.push(new Snake(3, 10));
-      snakes.push(new Snake(2, 10));
-      fruits.push(new Fruit());
-      fruits.push(new Fruit());
-      fruits.push(new Fruit());
-      fruits.push(new Fruit());
-      fruits.push(new Fruit());
+      startSnake();
     }
     if(speedOne.button) f = 8;
     if(speedTwo.button) f = 10;
@@ -138,6 +141,11 @@ function start() {
       if(mouseY > 0 && mouseY < height*0.05) {
         if(mouseIsPressed) {
           game = 0;
+          gridMines = [];
+          gridSnakes = [];
+          fruits = [];
+          snakes = [];
+          crash = false;
         }
       }
     }
@@ -153,14 +161,20 @@ class Button {
   }
 
   display() {
-    fill(0);
-    square(this.x - this.size/2,this.y - this.size/2, this.size);
+    rectMode(CENTER);
+    fill(255);
+    rect(this.x,this.y, this.size*1.75, this.size*0.65);
+    fill(0)
+    rect(this.x,this.y, this.size*1.7, this.size*0.6);
     fill(255)
     text(this.label,this.x, this.y);
+    rectMode(CORNER);
   }
 
   press() {
-    if(mouseX > this.x - this.size/2 && mouseX < this.x + this.size/2) {
+    this.button = false;  // default
+
+    if(mouseX > this.x*this.size*1.75 && mouseX < this.x + this.size/2) {
       if(mouseY > this.y - this.size/2 && mouseY < this.y + this.size/2) {
         if(mouseIsPressed) {
           this.button = true;
@@ -181,6 +195,7 @@ function mineSweeper() {
 }
 
 function mineGrid() {  //randomizes grid start
+  gridMines = [];  // clears grid every time you start
   for (let y = 0; y < rows; y++) {
     gridMines.push([]);
     for (let x = 0; x < cols; x++) {
@@ -414,8 +429,13 @@ function snake(){
   background(120);
 
   let head = snakes[0];
+  if(snakeButton.button) {
+    game = 2;
+    snakeGrid()
 
-  snakeGrid();
+  }
+
+  
   showGridS();
 
   //move body when alligned in grid
@@ -445,11 +465,34 @@ function snake(){
   fill(255);
   text("Score:"+score, width*0.3, squareSize/2);
   text("Highscore:"+highScore, width*0.65, squareSize/2);
-  if(crash === true){
-    fill(0);
-    text("You Crashed!", width/2, height/2);  
+  if (crash === true) {
+    crashScreen();
+    return;  // stop running the snake game loop
   }
+  
 
+}
+
+function startSnake() {
+  crash = false;
+  score = 3;
+  changeDir = 3;
+
+  gridSnakes = [];
+  fruits = [];
+  snakes = [];
+
+  snakeGrid();
+
+  snakes.push(new Snake(4, 10));
+  snakes.push(new Snake(3, 10));
+  snakes.push(new Snake(2, 10));
+
+  fruits.push(new Fruit());
+  fruits.push(new Fruit());
+  fruits.push(new Fruit());
+  fruits.push(new Fruit());
+  fruits.push(new Fruit());
 }
 
 function addFruit(){
@@ -517,6 +560,7 @@ function keyPressed() {
 }
 
 function snakeGrid() {
+  gridSnakes = []; //clears grid every time you start
   // creates the background grid
   for (let y = 0; y < rows; y++) {
     gridSnakes.push([]);
@@ -547,13 +591,45 @@ function showGridS() {
   } 
 }
 
+function crashScreen() {
+  background(31, 51, 77);
+  
+  fill(255,0,0);
+  textSize(40);
+  text("YOU CRASHED", width/2.01, height*0.302);
+  fill(255);
+  textSize(40);
+  text("YOU CRASHED", width/2, height*0.3);
+
+  textSize(24);
+  text("Score: " + score, width/2, height*0.4);
+  text("High Score: " + highScore, width/2, height*0.45);
+
+  restartButton.display();
+  restartButton.press();
+
+  backButton.display();
+  backButton.press();
+
+  if (restartButton.button) {
+    startSnake();   // reset snake game
+  }
+
+  if (backButton.button) {
+    game = 0;
+    crash = false;
+    gridSnakes = [];
+    fruits = [];
+    snakes = [];
+  }
+}
+
 class Snake {
   constructor(x, y) {
     this.x = x; this.y = y;
     this.xSpeed = 1;
     this.ySpeed = 0;
-    this.gridX = round(x/squareSize);
-    this.gridY = round(y/squareSize);
+
   }
   display() {
     fill(62, 146, 199);
@@ -561,7 +637,11 @@ class Snake {
 
     if(this === snakes[0]) {
       fill(255);
-      circle(this.x*squareSize + squareSize/2, this.y*squareSize + squareSize/2, squareSize/2);
+      circle(this.x*squareSize + squareSize/4, this.y*squareSize + squareSize/2, squareSize/4);
+      circle(this.x*squareSize + squareSize*0.75, this.y*squareSize + squareSize/2, squareSize/4);
+      fill(0);
+      circle(this.x*squareSize + squareSize/4, this.y*squareSize + squareSize/2, squareSize/8);
+      circle(this.x*squareSize + squareSize*0.75, this.y*squareSize + squareSize/2, squareSize/8);
     }
   }
   move() {
@@ -569,8 +649,7 @@ class Snake {
     this.x += this.xSpeed;
     this.y += this.ySpeed;
 
-    this.gridX = round(this.x / squareSize);
-    this.gridY = round(this.y / squareSize);
+
 
     if (this.x >= (cols-2)) this.x = (cols-2);
     if (this.x < 1) this.x = 1;
