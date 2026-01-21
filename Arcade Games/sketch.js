@@ -308,14 +308,14 @@ function checkGrid() { //checks how many mines, flags, and non mines
 
 }
 
-function winMine(t,q) { //win screen
+function winMine(t,q) { //win screen minesweeper
   background(31, 51, 77);
   
   fill(255,0,0);
   textSize(40);
   text("YOU WIN", width/2, height*0.3);
 
-  textSize(24);
+  textSize(24); //dispays time taken to complete
   fill(255);
   text("Score: " + t, width/2, height*0.4);
   text("Highscore: " + q, width/2, height*0.45);
@@ -326,11 +326,11 @@ function winMine(t,q) { //win screen
   backButton.display();
   backButton.press();
 
-  if (restartButton.button) {
+  if (restartButton.button) { // restart
     mineGrid();
   }
 
-  if (backButton.button) {
+  if (backButton.button) { //returns to start screen
     game = 0;
   }
 }
@@ -461,7 +461,7 @@ class DetectorOrMine {
   }
 }
 
-//Snake
+//Snake VAriables
 let score;
 let highScore = 0;
 let changeDir = -1;
@@ -473,13 +473,7 @@ function snake(){
   background(120);
 
   let head = snakes[0];
-  if(snakeButton.button) {
-    game = 2;
-    snakeGrid()
-
-  }
-
-  
+  //shows snake grid
   showGridS();
 
   //move body when alligned in grid
@@ -492,12 +486,12 @@ function snake(){
     }
     head.move();
   }
-
+  //turns snake
   turn();
-
+  //adds fruit when snake eats it
   addFruit();
 
-  for(let s of snakes){
+  for(let s of snakes){ //displays snake
     s.display();
   }
 
@@ -518,6 +512,7 @@ function snake(){
 }
 
 function startSnake() {
+  //resets all variables
   crash = false;
   score = 3;
   changeDir = 3;
@@ -527,7 +522,7 @@ function startSnake() {
   snakes = [];
 
   snakeGrid();
-
+  //adds starting apples and snake
   snakes.push(new Snake(4, 10));
   snakes.push(new Snake(3, 10));
   snakes.push(new Snake(2, 10));
@@ -539,7 +534,7 @@ function startSnake() {
   fruits.push(new Fruit());
 }
 
-function addFruit(){
+function addFruit(){ //shows fruits
   for(let f of fruits){
     f.display();
   }
@@ -548,14 +543,14 @@ function addFruit(){
       let l = snakes.length;
       let backX = snakes[l-1].x
       let backY = snakes[l-1].y
-      if(f.x === s.x && f.y === s.y){
+      if(f.x === s.x && f.y === s.y){ //adds new apple
         f.x = round(random(1,cols-2));
         f.y = round(random(1,rows-2));
-        while(f.x === s.x && f.y === s.y) {
+        while(f.x === s.x && f.y === s.y) { // makes sure apples dont spawn in the snake
           f.x = round(random(1,cols-2));
           f.y = round(random(1,rows-2));
         }
-        print(count);
+        //adds new snake on the back of the last snake
         if(changeDir === 1) { // down
           snakes.push(new Snake(backX, (backY+1)));
         }
@@ -598,7 +593,7 @@ function turn() {
 }
 
 function keyPressed() {
-  for (let s of snakes){
+  for (let s of snakes){ //changes direction of snake
     s.change();
   } 
 }
@@ -633,7 +628,8 @@ function showGridS() {
       square(x * squareSize, y * squareSize, squareSize);
     }
   }
-  if(score === (rows-2)*(cols-2)) snakeWin();
+  //if the snake takes up the intire grid then you win
+  if(score === (rows-2)*(cols-2)) winSnake();
 }
 
 function crashScreen() {
@@ -646,7 +642,7 @@ function crashScreen() {
   textSize(40);
   text("YOU CRASHED", width/2, height*0.3);
 
-  textSize(24);
+  textSize(24); //Displays score
   text("Score: " + score, width/2, height*0.4);
   text("High Score: " + highScore, width/2, height*0.45);
 
@@ -660,7 +656,7 @@ function crashScreen() {
     startSnake();   // reset snake game
   }
 
-  if (backButton.button) {
+  if (backButton.button) { //returns to start screen and resets all variables
     game = 0;
     crash = false;
     gridSnakes = [];
@@ -677,7 +673,7 @@ function winSnake() {
   text("YOU WIN", width/2, height*0.3);
 
   textSize(24);
-  fill(255);
+  fill(255); //shows score and highscoe
   text("Score: " + score, width/2, height*0.4);
   text("Highscore: " + highScore, width/2, height*0.45);
 
@@ -691,7 +687,7 @@ function winSnake() {
     startSnake();   // reset snake game
   }
 
-  if (backButton.button) {
+  if (backButton.button) { //returns to start screen
     game = 0;
     crash = false;
     gridSnakes = [];
@@ -711,7 +707,7 @@ class Snake {
     fill(62, 146, 199);
     square(this.x*squareSize, this.y*squareSize, squareSize);
 
-    if(this === snakes[0]) {
+    if(this === snakes[0]) { //eyes on the snake
       fill(255);
       circle(this.x*squareSize + squareSize/4, this.y*squareSize + squareSize/2, squareSize/4);
       circle(this.x*squareSize + squareSize*0.75, this.y*squareSize + squareSize/2, squareSize/4);
@@ -720,19 +716,20 @@ class Snake {
       circle(this.x*squareSize + squareSize*0.75, this.y*squareSize + squareSize/2, squareSize/8);
     }
   }
-  move() {
+  move() { //moves the snake
 
     this.x += this.xSpeed;
     this.y += this.ySpeed;
 
 
-
+    //makes sure teh snake stays in the grid
     if (this.x >= (cols-2)) this.x = (cols-2);
     if (this.x < 1) this.x = 1;
     if (this.y >= (rows-2)) this.y = (rows-2);
     if (this.y < 1) this.y = 1;
 
     for (let i = 1; i < snakes.length; i++) {   // start at 1 (skip head)
+      //snake crashes if the head is on the same grid sace as any other part of the snake
       if (snakes[i].x === snakes[0].x &&
           snakes[i].y === snakes[0].y) {
         this.xSpeed = 0;
@@ -758,7 +755,7 @@ class Snake {
 
 }
 class Fruit {
-  constructor() {
+  constructor() { //fruits spawn randomly
     this.x = round(random(1,cols-1));
     this.y = round(random(1,rows-1));
     // make sure that fruit doesnt spawn off the grid
