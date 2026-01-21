@@ -22,7 +22,8 @@ let f = 10;
 let time;
 let startTime;
 let elapsedTime;
-
+let quickestTime = 100000;
+// buttons
 let restartButton;
 let backButton;
 let mineButton;
@@ -30,65 +31,60 @@ let snakeButton;
 let speedOne;
 let speedTwo;
 let speedThree;
-// let sizeOne;
-// let sizeTwo;
-// let sizeThree;
+let sizeOne;
+let sizeTwo;
+let sizeThree;
 
 function setup() {
   rows+=2;
   cols+=2;
   createCanvas(cols*squareSize, rows*squareSize);
   noStroke();
-  textAlign(CENTER, CENTER);
-  mineButton = new Button(width*0.33, height/2, 100, "MINESWEEPER");
-  snakeButton = new Button(width*0.66, height/2, 100, "SNAKE");
-  restartButton = new Button(width*0.3, height*0.6, 120, "RESTART");
-  backButton = new Button(width*0.7, height*0.6, 120, "MENU");
-
-  speedOne = new Button(width*0.33, height*0.75, 50, "8");
-  speedTwo = new Button(width*0.5, height*0.75, 50, "10");
-  speedThree = new Button(width*0.66, height*0.75, 50, "12");
+  textAlign(CENTER, CENTER);  
 }
 
 function draw() {
+  createCanvas(cols*squareSize, rows*squareSize); // allows size of arena to change
   time = new Date();
-  frameRate(f);
+  frameRate(f); // allows speed of snake to change
   textSize(20);
   background(31, 51, 77);
   x = getCurrentX();
   y = getCurrentY();
-  if(game === 1) mineSweeper();
-  if(game === 2) snake();
+  if(game === 1) mineSweeper(); //starts minesweeper
+  if(game === 2) snake(); //starts snakes
   start();
 }
 
 // Start Screen
 function start() {
-  mineButton = new Button(width*0.33, height/2, 100, "MINESWEEPER");
-  snakeButton = new Button(width*0.66, height/2, 100, "SNAKE");
+  //creates buttons  
+  if(game === 0) { //loading screen
+    mineButton = new Button(width*0.33, height/2, 100, "MINESWEEPER");
+    snakeButton = new Button(width*0.66, height/2, 100, "SNAKE");
 
-  speedOne = new Button(width*0.33, height*0.65, 50, "8");
-  speedTwo = new Button(width*0.5, height*0.65, 50, "10");
-  speedThree = new Button(width*0.66, height*0.65, 50, "12");
+    speedOne = new Button(width*0.33, height*0.65, 50, "8");
+    speedTwo = new Button(width*0.5, height*0.65, 50, "10");
+    speedThree = new Button(width*0.66, height*0.65, 50, "12");
 
-  // sizeOne = new Button(width*0.33, height*0.25, 50, "10x10");
-  // sizeTwo = new Button(width*0.5, height*0.25, 50, "15x15");
-  // sizeThree = new Button(width*0.66, height*0.25, 50, "20x20");
-  
-  if(game === 0) {
+    sizeOne = new Button(width*0.33, height*0.35, 50, "15x15");
+    sizeTwo = new Button(width*0.5, height*0.35, 50, "20x20");
+    sizeThree = new Button(width*0.66, height*0.35, 50, "25x25");
     startTime = time.getSeconds();
+    //loading screen text
     fill(0)
     textSize(60);
     text("ARCADE GAMES",width*0.492, height*0.226);
     fill(255);
     text("ARCADE GAMES",width*0.5, height*0.22);
     textSize(20);
-    text("Speed:",width*0.20,height*0.65)
-    text("click = remove grass",width*0.33, height*0.85);
-    text("click + ctrl = flag",width*0.33, height*0.9);
+    text("Size:",width*0.20,height*0.35);
+    text("Speed:",width*0.20,height*0.65);
+    text("click = remove grass",width*0.25, height*0.85);
+    text("click + ctrl = flag",width*0.25, height*0.9);
 
-    text("WASD or ARROW KEYS",width*0.66, height*0.85);
-
+    text("WASD or ARROW KEYS",width*0.75, height*0.85);
+    //displays each button and allows it to be pressed
     mineButton.display();
     mineButton.press();
     snakeButton.display();
@@ -101,41 +97,44 @@ function start() {
     speedTwo.press();
     speedThree.press();
 
-    // sizeOne.display();
-    // sizeTwo.display();
-    // sizeThree.display();
-    // sizeOne.press();
-    // sizeTwo.press();
-    // sizeThree.press();
+    sizeOne.display();
+    sizeTwo.display();
+    sizeThree.display();
+    sizeOne.press();
+    sizeTwo.press();
+    sizeThree.press();
 
-    if(mineButton.button) {
+    if(mineButton.button) { //if minesweeepr button pressed start minesweeper
       game = 1;
       mineGrid();
     }
-    if (snakeButton.button) {
+    if (snakeButton.button) {//if snake button pressed starts snake game
       game = 2;
       startSnake();
     }
-    if(speedOne.button) f = 8;
+    if(speedOne.button) f = 8;  //changes speed
     if(speedTwo.button) f = 10;
     if(speedThree.button) f = 12;
-
-    // if(sizeOne.button){
-    //   cols = 12;
-    //   rows = 12;
-    // }
-    // if(sizeTwo.button){
-    //   cols = 17;
-    //   rows = 17;
-    // }
-    // if(sizeThree.button){
-    //   cols = 22;
-    //   rows = 22;
-    // }
+    //changes size
+    if(sizeOne.button){
+      cols = 17;
+      rows = 17;
+    }
+    if(sizeTwo.button){
+      cols = 22;
+      rows = 22;
+    }
+    if(sizeThree.button){
+      cols = 27;
+      rows = 27;
+    }
   }
-  else {
+  else { // during minesweeper and snake
+    restartButton = new Button(width*0.3, height*0.6, 120, "RESTART");
+    backButton = new Button(width*0.7, height*0.6, 120, "MENU");
     fill(255);
     textSize(20);
+    //back button
     text("BACK", width*0.94, squareSize/2);
     if(mouseX > width*0.85 && mouseX < width) {
       if(mouseY > 0 && mouseY < height*0.05) {
@@ -152,10 +151,10 @@ function start() {
   }
 }
 
-class Button {
+class Button { 
   constructor(x,y,s, label,) {
     this.x = x; this.y = y;
-    this.button = false;
+    this.button = false; //button starts off
     this.size = s;
     this.label = label;
   }
@@ -171,10 +170,10 @@ class Button {
     rectMode(CORNER);
   }
 
-  press() {
-    this.button = false;  // default
+  press() { //if clicked button is on
+    this.button = false;
 
-    if(mouseX > this.x*this.size*1.75 && mouseX < this.x + this.size/2) {
+    if(mouseX > this.x - this.size/2 && mouseX < this.x + this.size/2) {
       if(mouseY > this.y - this.size/2 && mouseY < this.y + this.size/2) {
         if(mouseIsPressed) {
           this.button = true;
@@ -188,10 +187,34 @@ class Button {
 // Minesweeper
 function mineSweeper() {
   textAlign(CENTER, CENTER);
-  showGridM();
-  checkGrid();
-  if(activeMine > 0) activeMine++;
-  if(activeMine > 16) youLose();
+  showGridM(); //shows grid
+  checkGrid(); // checks grid to see if you win or lose
+}
+
+function mineScreen(t) { // lose screen
+  background(31, 51, 77);
+  
+  fill(255,0,0);
+  textSize(40);
+  text("YOU LOSE", width/2, height*0.3);
+  //displays scores
+  textSize(24);
+  fill(255);
+  text("Score: " + t, width/2, height*0.4);
+  // recreates lose screen buttons
+  restartButton.display();
+  restartButton.press();
+
+  backButton.display();
+  backButton.press();
+
+  if (restartButton.button) { //creates a new map
+    mineGrid();
+  }
+
+  if (backButton.button) { // returns to start screen
+    game = 0;
+  }
 }
 
 function mineGrid() {  //randomizes grid start
@@ -239,7 +262,6 @@ function showGridM() { //displays the grid
 }
 
 function checkGrid() { //checks how many mines, flags, and non mines
-  let quickestTime;
   count = 0;
   mineCount = 0;
   activeMine = 0;
@@ -260,18 +282,19 @@ function checkGrid() { //checks how many mines, flags, and non mines
       }
     }
   }
-  if((rows)*(cols) - mineCount === count && activeMine === 0) {
+  if((rows)*(cols) - mineCount === count && activeMine === 0) { //gives your time it took to complete it
     if(elapsedTime < quickestTime) quickestTime = elapsedTime;
-    youWin();
+    winMine(elapsedTime, quickestTime); //win screen
   }
-  if(activeMine === 1) {
+  if(activeMine === 1) { //if mine turns up
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) { 
         if(gridMines[y][x].mine === "mine") gridMines[y][x].grass = false;
+        mineScreen(elapsedTime); //lose screen
       }
     }
   }
-  fill(255,0,0);
+  fill(255,0,0); //displays flag count remaining
   triangle(4*squareSize + 13, 5, 4*squareSize + 22, 10, 4*squareSize + 13, 15);
   rectMode(CORNERS);
   rect(4*squareSize + 13, 5, 4*squareSize + 11, 25);
@@ -279,16 +302,37 @@ function checkGrid() { //checks how many mines, flags, and non mines
   fill(255);
   text(mineCount-flagCount,width*0.31,squareSize/2); //prints how many mines are left
   if((rows)*(cols) - mineCount !== count && activeMine === 0) {
-    elapsedTime = time.getSeconds() - startTime;
+    elapsedTime = time.getSeconds() - startTime; //keeps countiing as long as you are aive
   }
   text("TIME: " + elapsedTime + "s", width*0.6, squareSize/2);
 
 }
 
-function youWin() {
+function winMine(t,q) { //win screen
+  background(31, 51, 77);
+  
+  fill(255,0,0);
+  textSize(40);
+  text("YOU WIN", width/2, height*0.3);
+
+  textSize(24);
   fill(255);
-  background(0);
-  text("YOU WIN",width/2, height/2);
+  text("Score: " + t, width/2, height*0.4);
+  text("Highscore: " + q, width/2, height*0.45);
+
+  restartButton.display();
+  restartButton.press();
+
+  backButton.display();
+  backButton.press();
+
+  if (restartButton.button) {
+    mineGrid();
+  }
+
+  if (backButton.button) {
+    game = 0;
+  }
 }
 
 function mousePressed() {
@@ -588,7 +632,8 @@ function showGridS() {
       else fill(100);
       square(x * squareSize, y * squareSize, squareSize);
     }
-  } 
+  }
+  if(score === (rows-2)*(cols-2)) snakeWin();
 }
 
 function crashScreen() {
@@ -604,6 +649,37 @@ function crashScreen() {
   textSize(24);
   text("Score: " + score, width/2, height*0.4);
   text("High Score: " + highScore, width/2, height*0.45);
+
+  restartButton.display();
+  restartButton.press();
+
+  backButton.display();
+  backButton.press();
+
+  if (restartButton.button) {
+    startSnake();   // reset snake game
+  }
+
+  if (backButton.button) {
+    game = 0;
+    crash = false;
+    gridSnakes = [];
+    fruits = [];
+    snakes = [];
+  }
+}
+
+function winSnake() {
+  background(31, 51, 77);
+  
+  fill(255,0,0);
+  textSize(40);
+  text("YOU WIN", width/2, height*0.3);
+
+  textSize(24);
+  fill(255);
+  text("Score: " + score, width/2, height*0.4);
+  text("Highscore: " + highScore, width/2, height*0.45);
 
   restartButton.display();
   restartButton.press();
@@ -665,7 +741,7 @@ class Snake {
       }
     }
   }
-  change(){
+  change(){ //takes key pressed and assigns a direction
     if(keyCode === DOWN_ARROW || keyCode === 83) {
       changeDir = 1;
     }
